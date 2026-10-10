@@ -5,7 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pulse</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&display=swap">
+<script>try{var t=localStorage.getItem('pulse_theme');if(t==='crota')document.documentElement.setAttribute('data-theme','crota')}catch(e){}</script>
 <link rel="stylesheet" href="/pulse.css">
+<link rel="stylesheet" href="/theme-destiny.css">
 </head>
 <body>
 <header>
@@ -16,7 +20,7 @@
       <button aria-pressed="false" data-v="accounts">Accounts</button>
       <button aria-pressed="false" data-v="editor">Editor</button>
     </div>
-    <label class="acct"><select id="acct" aria-label="Account"></select></label>
+    <div class="hdr-r"><label class="acct"><select id="acct" aria-label="Account"></select></label><button type="button" id="themeBtn" aria-label="Switch theme" title="Switch theme">◐</button></div>
   </header>
 <div class="wrap">
   
@@ -24,7 +28,7 @@
   <section class="view on" id="overview"></section>
 
   <section class="view" id="schedule">
-    <h1>Schedule</h1>
+    <span class="cap">Active bounties</span><h1>Schedule</h1>
     <p class="sub">Posts publish automatically at the time you set.</p>
     <div class="bar">
       <div class="seg" id="filter">
@@ -38,7 +42,7 @@
   </section>
 
   <section class="view" id="accounts">
-    <h1>Accounts</h1>
+    <span class="cap">Fireteam roster</span><h1>Accounts</h1>
     <p class="sub">Instagram accounts connected to Pulse.</p>
     <div class="bar"><span></span><a class="btn" href="/auth/instagram">Connect account</a></div>
     <div class="panel" id="alist"></div>
@@ -87,26 +91,43 @@ function emptyConnect(){return `<div class="panel empty"><p>Connect an Instagram
 
 async function renderOverview(){
   const el=$('#overview');
-  if(!S.accts.length){el.innerHTML='<h1>Overview</h1><p class="sub">Welcome to Pulse.</p>'+emptyConnect();return}
+  if(!S.accts.length){el.innerHTML='<span class="cap">Sector // Overview</span><h1>Overview</h1><p class="sub">Welcome to Pulse.</p>'+emptyConnect();return}
   if(S.acct==='all'){
     const week=Date.now()-7*864e5,pub=S.posts.filter(p=>p.status==='published'&&new Date(p.published_at)>week).length;
-    el.innerHTML=`<h1>Overview</h1><p class="sub">All ${S.accts.length} accounts</p>
+    el.innerHTML=`<span class="cap">Sector // Overview</span><h1>Overview</h1><p class="sub">All ${S.accts.length} accounts</p>
     <div class="panel stats"><div class="stat"><span class="l">Accounts</span><span class="v">${S.accts.length}</span></div><div class="stat"><span class="l">Followers</span><span class="v">${fmt(S.accts.reduce((s,a)=>s+(a.followers||0),0))}</span></div><div class="stat"><span class="l">Scheduled</span><span class="v">${S.accts.reduce((s,a)=>s+a.scheduled,0)}</span></div><div class="stat"><span class="l">Published, 7 days</span><span class="v">${pub}</span></div></div>
     <div class="panel">${S.accts.map(a=>`<button class="row" data-id="${a.id}">${av(a)}<div class="t"><b>@${esc(a.username)}</b><span>${a.status==='active'?'Connected':'Needs reconnecting'}</span></div><div class="n"><b>${fmt(a.followers)}</b><small>followers</small></div></button>`).join('')}</div>`;
     el.querySelectorAll('.row').forEach(b=>b.onclick=()=>{S.acct=b.dataset.id;$('#acct').value=S.acct;render()});return;
   }
   const a=S.accts.find(x=>x.id===S.acct);
-  el.innerHTML=`<h1>@${esc(a.username)}</h1><p class="sub">Loading from Instagram…</p>`;
+  el.innerHTML=`<span class="cap">Sector // Overview</span><h1>@${esc(a.username)}</h1><p class="sub ld">Loading from Instagram…</p>`;
   let d=S.ov[a.id];
   try{if(!d||Date.now()-d.t>60000){d={...await api(`/api/accounts/${a.id}/overview`),t:Date.now()};S.ov[a.id]=d}}
-  catch(e){el.innerHTML=`<h1>@${esc(a.username)}</h1><p class="sub err">${esc(e.message)}</p>`;return}
+  catch(e){el.innerHTML=`<span class="cap">Sector // Overview</span><h1>@${esc(a.username)}</h1><p class="sub err">${esc(e.message)}</p>`;return}
   if(S.acct!==a.id||S.view!=='overview')return;
   const m=d.media,avg=k=>m.length?Math.round(m.reduce((s,x)=>s+(x[k]||0),0)/m.length):0;
-  el.innerHTML=`<h1>@${esc(a.username)}</h1><p class="sub">${esc(d.profile.account_type||'')} account</p>
+  el.innerHTML=`<span class="cap">Sector // Overview</span><h1>@${esc(a.username)}</h1><p class="sub">${esc(d.profile.account_type||'')} account</p>
   <div class="panel stats"><div class="stat"><span class="l">Followers</span><span class="v">${fmt(d.profile.followers_count)}</span></div><div class="stat"><span class="l">Posts</span><span class="v">${fmt(d.profile.media_count)}</span></div><div class="stat"><span class="l">Avg likes</span><span class="v">${fmt(avg('like_count'))}</span></div><div class="stat"><span class="l">Avg comments</span><span class="v">${fmt(avg('comments_count'))}</span></div></div>
   <div class="panel chart"><h2>Followers</h2>${chart(d.snapshots)}</div>
-  <h2 class="sec">Recent posts</h2>
-  <div class="grid">${m.map(x=>`<a class="post" href="${esc(x.permalink)}" target="_blank" rel="noopener">${(x.media_type==='VIDEO'?x.thumbnail_url:x.media_url)?`<img src="${esc(x.media_type==='VIDEO'?x.thumbnail_url:x.media_url)}" alt="" loading="lazy">`:'<div class="ph"></div>'}<div class="meta"><span>${fmt(x.like_count)} likes</span><span>${fmt(x.comments_count)} comments</span></div></a>`).join('')||'<p class="sub">No posts yet.</p>'}</div>`;
+  <span class="cap" style="margin-top:40px">Combat record</span><h2>Recent posts</h2>
+  <div class="grid">${tiles(m)}</div>`;
+}
+
+// ---- Destiny-style post tiles: tier = engagement vs this account's own posts (front-end only) ----
+const TIERS=['common','uncommon','rare','legendary','exotic'];
+function tileTier(list){
+  const e=list.map(x=>(x.like_count||0)+(x.comments_count||0)),sorted=[...e].sort((a,b)=>a-b),n=sorted.length;
+  return e.map(v=>{if(n<5)return 'common';const pct=sorted.filter(z=>z<v).length/n;return pct>=.98?'exotic':pct>=.90?'legendary':pct>=.70?'rare':pct>=.40?'uncommon':'common'});
+}
+function tiles(m){
+  if(!m.length)return '<p class="sub">No posts yet.</p>';
+  const tr=tileTier(m),mx=Math.max(1,...m.map(x=>Math.max(x.like_count||0,x.comments_count||0)));
+  return m.map((x,i)=>{
+    const t=tr[i],img=x.media_type==='VIDEO'?x.thumbnail_url:x.media_url,kind=x.media_type==='VIDEO'?'Reel':x.media_type==='CAROUSEL_ALBUM'?'Carousel':'Image post';
+    const cap=(x.caption||'Untitled').slice(0,40),L=x.like_count||0,C=x.comments_count||0,dt=x.timestamp?new Date(x.timestamp).toLocaleString('en',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+    const bar=(l,v)=>`<div class="st"><span>${l}</span><i><u style="--w:${(v/mx).toFixed(3)}"></u></i><em>${fmt(v)}</em></div>`;
+    return `<a class="post" data-tier="${t}" href="${esc(x.permalink)}" target="_blank" rel="noopener">${img?`<img src="${esc(img)}" alt="" loading="lazy">`:'<div class="ph"></div>'}<span class="sheen"></span><span class="tier">${t}</span><div class="meta"><span>${fmt(L)} likes</span><span>${fmt(C)} comments</span></div>
+    <div class="d-tooltip" role="tooltip"><div class="hd"><b>${esc(cap)}</b><span><i>${kind}</i><i>${t}</i></span></div><div class="bd"><div class="big">${fmt(L+C)}<small>Interactions</small></div><hr>${bar('Likes',L)}${bar('Comments',C)}<hr><div class="lore">${dt?'Transmitted '+esc(dt)+'.':'Transmission time unknown.'}</div></div></div></a>`}).join('');
 }
 function chart(s){
   if(s.length<2)return '<p class="sub" style="margin:0;font-size:14px">History starts today. Pulse saves follower counts daily, so the line appears tomorrow.</p>';
@@ -123,11 +144,13 @@ function renderSchedule(){
   l=l.filter(p=>f==='upcoming'?['scheduled','publishing'].includes(p.status):p.status===f);
   l.sort((a,b)=>f==='upcoming'?new Date(a.scheduled_at)-new Date(b.scheduled_at):new Date(b.scheduled_at)-new Date(a.scheduled_at));
   $('#plist').innerHTML=l.length?l.map(p=>`<div class="row">${p.media_type==='REELS'?`<video class="thumb" src="${esc(p.media_url)}#t=0.1" muted preload="metadata"></video>`:`<img class="thumb" src="${esc(p.media_url)}" alt="">`}
-    <div class="t"><b>${esc(p.caption)||'No caption'}</b><span>@${esc(p.username)}, ${when(p.status==='published'?p.published_at:p.scheduled_at)}</span>${p.last_error?`<br><span class="err">${esc(p.last_error)}</span>`:''}</div>
+    <div class="t"><span class="status-cap">${{scheduled:'Bounty acquired',publishing:'Bounty acquired',published:'Bounty complete',failed:'Bounty failed'}[p.status]||''}</span><b>${esc(p.caption)||'No caption'}</b><span>@${esc(p.username)}, ${when(p.status==='published'?p.published_at:p.scheduled_at)}</span>${p.last_error?`<br><span class="err">${esc(p.last_error)}</span>`:''}
+    <ul class="objs"><li class="ok">Media uploaded<span>&#10003;</span></li><li class="${p.caption?'ok':''}">Caption ready<span>${p.caption?'&#10003;':'–'}</span></li><li class="${p.status==='published'?'ok':''}">Transmission<span>${new Date(p.status==='published'?p.published_at:p.scheduled_at).toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'})}</span></li></ul>
+    <span class="prog ${p.status}"><u style="--p:${p.status==='published'||p.status==='failed'?1:Math.max(.04,Math.min(1,1-(new Date(p.scheduled_at)-Date.now())/864e5)).toFixed(3)}"></u></span></div>
     <span class="badge b-${p.status}">${{scheduled:'Scheduled',publishing:'Publishing…',published:'Published',failed:'Failed'}[p.status]}</span>
     ${p.permalink?`<a class="link" href="${esc(p.permalink)}" target="_blank" rel="noopener">View</a>`:''}
     ${p.status==='failed'?`<button class="link" data-retry="${p.id}">Retry</button>`:''}
-    ${['scheduled','failed'].includes(p.status)?`<button class="link" style="color:var(--muted)" data-del="${p.id}">Remove</button>`:''}</div>`).join(''):`<div class="empty"><p>${f==='upcoming'?'Nothing scheduled.':'Nothing here yet.'}</p>${f==='upcoming'&&S.accts.length?'':''}</div>`;
+    ${['scheduled','failed'].includes(p.status)?`<button class="link" style="color:var(--muted)" data-del="${p.id}">Remove</button>`:''}</div>`).join(''):`<div class="empty"><p>${f==='upcoming'?'No active bounties':'Nothing here yet'}<small>${f==='upcoming'?'Schedule a post to begin.':'Check back after posts go out.'}</small></p>${f==='upcoming'&&S.accts.length?'':''}</div>`;
   document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{try{await api('/api/posts/'+b.dataset.del,{method:'DELETE'});await load()}catch(e){toast(e.message)}});
   document.querySelectorAll('[data-retry]').forEach(b=>b.onclick=async()=>{try{await api(`/api/posts/${b.dataset.retry}/retry`,{method:'POST'});toast('Retrying');await load()}catch(e){toast(e.message)}});
 }
@@ -170,6 +193,10 @@ $('#form').onsubmit=async e=>{
     $('#dlg').close();toast(now?'Publishing now…':'Scheduled');S.filter='upcoming';document.querySelectorAll('#filter button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.f==='upcoming'));await load();
   }catch(x){err.textContent=x.message}finally{btn.disabled=false;btn.textContent=label}
 };
+
+document.addEventListener('pointerover',e=>{const t=e.target.closest&&e.target.closest('.post');if(!t)return;const r=t.getBoundingClientRect();t.classList.toggle('flipL',r.left<130);t.classList.toggle('flipR',r.right>innerWidth-130)});
+// ---- Theme (Vault of Glass / Crota's End) ----
+$('#themeBtn').onclick=()=>{const r=document.documentElement,c=r.getAttribute('data-theme')==='crota';if(c)r.removeAttribute('data-theme');else r.setAttribute('data-theme','crota');try{localStorage.setItem('pulse_theme',c?'vog':'crota')}catch(e){}};
 
 // ---- Boot ----
 const q=new URLSearchParams(location.search);

@@ -2,18 +2,21 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pulse · Editor</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@700;800&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@700;800&family=Inter+Tight:wght@300;400;500;600;700&display=swap">
+<script>try{if(localStorage.getItem("pulse_theme")==="crota")document.documentElement.setAttribute("data-theme","crota")}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>">
 <link rel="stylesheet" href="/pulse.css">
+<link rel="stylesheet" href="/theme-destiny.css">
 </head><body>
-<header><a class="brand" href="/">Pulse</a><div class="seg" id="nav"><a href="/#overview">Overview</a><a href="/#schedule">Schedule</a><a href="/#accounts">Accounts</a><a href="/editor.html" class="on">Editor</a></div><span style="min-width:140px"></span></header>
-<div class="wrap" style="padding-bottom:0"><h1>Editor</h1><p class="sub">Splice your model into a template. The original audio stays untouched.</p></div>
+<header><a class="brand" href="/">Pulse</a><div class="seg" id="nav"><a href="/#overview">Overview</a><a href="/#schedule">Schedule</a><a href="/#accounts">Accounts</a><a href="/editor.html" class="on">Editor</a></div><div class="hdr-r"><button type="button" id="themeBtn" aria-label="Switch theme" title="Switch theme">◐</button></div></header>
+<div class="wrap" style="padding-bottom:0"><span class="cap">Loadout // Transmat</span><h1>Editor</h1><p class="sub">Splice your model into a template. The original audio stays untouched.</p></div>
 <main>
 <section>
  <div class="p"><h2>Templates <b><span id="n">0</span></b></h2>
   <div class="drop" id="td">Drop original verticals<input id="tf" type="file" accept="video/*" multiple hidden></div>
   <button class="sm" id="rdA" hidden style="margin-top:10px;width:100%">⚡ Read caption text from all templates</button>
-  <div class="r" style="margin-top:10px"><button class="sm" id="exA">Export templates</button><button class="sm" id="imA">Import templates</button></div><input id="imF" type="file" accept=".rsw" hidden>
+  <div class="r" style="margin-top:10px"><button class="sm" id="exA">Export templates</button><button class="sm" id="imA">Import templates</button></div><input id="imF" type="file" accept=".rsw" hidden><div class="mu" id="sy" style="margin-top:8px"></div>
   <div class="tgrid" id="grid"></div></div>
  <div class="p"><h2>Target feed</h2>
   <div class="drop" id="md">Drop model video<input id="mf" type="file" accept="video/*" hidden></div>
@@ -54,8 +57,47 @@ function drawText(x,t,W,H){const txt=t.brk||t.text;if(!txt)return;const fs=W*t.s
  x.save();x.translate(cx,0);x.scale(sx,1);
  L.forEach((l,i)=>{const y=y0+i*lh;x.lineWidth=e*2;x.strokeStyle='#000';x.shadowColor='rgba(0,0,0,.6)';x.shadowBlur=fs*.1;x.shadowOffsetY=fs*.03;x.strokeText(l,0,y);x.shadowColor='transparent';x.fillText(l,0,y)});x.restore()}
 /* storage */
-const store=(m,v)=>new Promise(r=>{try{const o=db.transaction('t','readwrite').objectStore('t');const q=m=='put'?o.put(v):m=='del'?o.delete(v):o.getAll();q.onsuccess=()=>r(q.result);q.onerror=()=>r([])}catch(e){r([])}});
+const idb=(m,v)=>new Promise(r=>{try{const o=db.transaction('t','readwrite').objectStore('t');const q=m=='put'?o.put(v):m=='del'?o.delete(v):o.getAll();q.onsuccess=()=>r(q.result);q.onerror=()=>r([])}catch(e){r([])}});
 let pt;const persist=()=>{clearTimeout(pt);pt=setTimeout(()=>sel&&store('put',sel),500)},saveCfg=()=>store('put',{id:'__cfg',cal2:cfg.cal,fontBlob:cfg.blob,fontName:cfg.font});
+/* server sync: templates also live in Pulse, so every browser and teammate sees the same set */
+const J=(u,o={})=>fetch(u,{headers:{'Content-Type':'application/json'},...o}).then(async r=>{const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'request failed');return j});
+const sendFile=(u,fd)=>fetch(u,{method:'POST',body:fd}).then(async r=>{if(!r.ok){const j=await r.json().catch(()=>({}));throw new Error(j.error||'upload failed')}});
+const plain=t=>{const o={};for(const k in t){if(k!=='id'&&!(t[k] instanceof Blob))o[k]=t[k]}return o};
+const sy=m=>{const e=$('#sy');if(e)e.textContent=m};
+let syncQ=Promise.resolve(),syncT={},fontSent=null;
+const queue=fn=>{syncQ=syncQ.then(fn).catch(e=>sy('could not save to Pulse: '+(e&&e.message||e)));return syncQ};
+function syncPut(v){if(!v||!v.id)return;clearTimeout(syncT[v.id]);syncT[v.id]=setTimeout(()=>queue(async()=>{
+ if(v.id==='__cfg'){
+  await J('/api/templates-config',{method:'PUT',body:JSON.stringify({cal2:v.cal2,fontName:v.fontName})});
+  if(v.fontBlob&&v.fontBlob!==fontSent){const fd=new FormData();fd.append('file',new File([v.fontBlob],v.fontBlob.name||((v.fontName||'font')+'.ttf')));await sendFile('/api/templates-config/font',fd);fontSent=v.fontBlob}
+ }else{
+  sy('saving to Pulse…');
+  await J('/api/templates/'+v.id,{method:'PUT',body:JSON.stringify({data:plain(v),added:v.added})});
+  if(!v.up&&v.blob){const fd=new FormData();fd.append('file',new File([v.blob],'template.mp4',{type:v.blob.type||'video/mp4'}));await sendFile('/api/templates/'+v.id+'/video',fd);v.up=true;await idb('put',v)}
+ }
+ sy('saved to Pulse')}),800)}
+function syncDel(id){clearTimeout(syncT[id]);queue(()=>J('/api/templates/'+id,{method:'DELETE'}))}
+const store=(m,v)=>{const r=idb(m,v);if(m==='put')syncPut(v);else if(m==='del')syncDel(v);return r};
+async function pull(){
+ let srv;try{srv=await J('/api/templates')}catch(e){sy('offline: templates are only saved in this browser');return}
+ sy('syncing…');
+ const onSrv=new Map(srv.templates.map(r=>[r.id,r])),c=srv.config||{};
+ const hasCfg=(await idb('all')).some(r=>r.id==='__cfg');
+ if(!hasCfg&&(c.cal2||c.has_font)){cfg.cal=c.cal2??1;
+  if(c.has_font)try{const r=await fetch('/api/templates-config/font');if(r.ok)await loadFont(await r.blob(),c.fontName||'font')}catch(e){}
+  await idb('put',{id:'__cfg',cal2:cfg.cal,fontBlob:cfg.blob,fontName:cfg.font})}
+ fontSent=c.has_font?(cfg.blob||null):null;
+ if(cfg.blob&&!c.has_font)syncPut({id:'__cfg',cal2:cfg.cal,fontBlob:cfg.blob,fontName:cfg.font});
+ let got=0;
+ for(const r of srv.templates){
+  if(T.some(t=>t.id===r.id)||!r.has_video)continue;
+  try{const res=await fetch('/api/templates/'+r.id+'/video');if(!res.ok)continue;const blob=await res.blob();
+   const t={...r.data,id:r.id,added:r.added??r.data.added??Date.now(),blob,up:true};t.x??=50;t.wrap??=88;t.brk??='';
+   await idb('put',t);T.push(t);got++;sy('downloading templates… '+got);list()}catch(e){}}
+ for(const t of [...T]){const r=onSrv.get(t.id);
+  if(!r||!r.has_video){if(t.up&&!r){await idb('del',t.id);T=T.filter(x=>x!==t)}else{t.up=false;syncPut(t)}}}
+ T.sort((a,b)=>a.added-b.added);T.forEach(t=>t.geo&&fit(t));list();
+ sy(T.length?'saved to Pulse':'')}
 async function init(){try{db=await new Promise((ok,no)=>{const q=indexedDB.open('reelswap',1);q.onupgradeneeded=()=>q.result.createObjectStore('t',{keyPath:'id'});q.onsuccess=()=>ok(q.result);q.onerror=no})}catch(e){db=null}
  if(db)T=(await store('all'))||[];const c=T.find(t=>t.id=='__cfg');if(c){cfg.cal=c.cal2??1;if(c.fontBlob)try{await loadFont(c.fontBlob,c.fontName)}catch(e){}}T=T.filter(t=>t.id!='__cfg');T.forEach(t=>{t.x??=50;t.wrap??=88;t.brk??=''});T.sort((a,b)=>a.added-b.added);list()}
 function list(){$('#n').textContent=T.length;$('#grid').innerHTML='';T.forEach(t=>{const d=document.createElement('div');d.className='c'+(sel&&sel.id==t.id?' s':'');d.innerHTML=`<img src="${t.thumb}"><span>${t.name}</span>`;d.onclick=()=>pick(t);$('#grid').append(d)})}
@@ -233,10 +275,11 @@ async function importAll(file){
  let pos=8+hl;const blobs=refs.map(r=>{const b=file.slice(pos,pos+r.size,r.type);pos+=r.size;return b});
  if(pos>file.size)throw new Error('the file is incomplete');
  let n=0;
- for(const o of head.rows){const r={};for(const k in o){const v=o[k];r[k]=v&&typeof v==='object'&&'__blob' in v?blobs[v.__blob]:v}await store('put',r);if(r.id!=='__cfg')n++}
+ for(const o of head.rows){const r={};for(const k in o){const v=o[k];r[k]=v&&typeof v==='object'&&'__blob' in v?blobs[v.__blob]:v}if(r.id!=='__cfg')r.up=false;await store('put',r);if(r.id!=='__cfg')n++}
  await init();T.forEach(t=>t.geo&&fit(t));sel=null;$('#form').hidden=true;$('#none').hidden=false;list();
  $('#st').textContent=`imported ${n} template(s).`}
 $('#imA').onclick=()=>$('#imF').click();
 $('#imF').onchange=async()=>{const f=$('#imF').files[0];$('#imF').value='';if(!f)return;try{await importAll(f)}catch(e){$('#st').textContent='import failed: '+(e&&e.message||e)}};
-init().then(()=>fontReady).then(()=>{T.forEach(t=>t.geo&&fit(t));if(sel){sliders();prev()}});
-</script></body></html>
+init().then(()=>fontReady).then(()=>{T.forEach(t=>t.geo&&fit(t));if(sel){sliders();prev()}}).then(()=>pull());
+</script><script>document.getElementById("themeBtn").onclick=function(){var r=document.documentElement,c=r.getAttribute("data-theme")==="crota";if(c)r.removeAttribute("data-theme");else r.setAttribute("data-theme","crota");try{localStorage.setItem("pulse_theme",c?"vog":"crota")}catch(e){}};</script>
+</body></html>
