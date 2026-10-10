@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import crypto from 'node:crypto';
+import { Readable } from 'node:stream';
 import fs from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
 import { pool } from './db.js';
@@ -173,6 +174,102 @@ app.post('/api/posts/:id/retry', wrap(async (req, res) => {
   if (!r.rowCount) throw bad('Only failed posts can be retried');
   setImmediate(tick);
   res.json({ ok: true });
+}));
+
+// ---------- Editor templates (stored here so every browser and teammate sees the same set) ----------
+const idOk = (id) => /^[A-Za-z0-9_-]{6,64}$/.test(id);
+const VIDEO_EXT = { 'video/mp4': 'mp4', 'video/quicktime': 'mov', 'video/webm': 'webm', 'video/x-m4v': 'm4v' };
+const notFound = (msg) => Object.assign(new Error(msg), { status: 404 });
+
+async function proxy(url, type, res) {
+  const r = await fetch(url);
+  if (!r.ok || !r.body) throw Object.assign(new Error('File unavailable'), { status: 502 });
+  res.set({ 'Content-Type': type, 'Cache-Control': 'private, max-age=86400' });
+  Readable.fromWeb(r.body).on('error', () => res.destroy()).pipe(res);
+}
+
+app.get('/api/templates', wrap(async (req, res) => {
+  const { rows } = await pool.query(
+    'select id, data, (video_url is not null) as has_video, added from templates order by added nulls last, id'
+  );
+  const { rows: [c] } = await pool.query('select data, (font_url is not null) as has_font from editor_config where id=1');
+  res.json({ templates: rows, config: c ? { ...c.data, has_font: c.has_font } : {} });
+}));
+
+app.put('/api/templates/:id', wrap(async (req, res) => {
+  if (!idOk(req.params.id)) throw bad('Bad template id');
+  const { data, added } = req.body || {};
+  if (!data || typeof data !== 'object' || Array.isArray(data)) throw bad('Missing template data');
+  await pool.query(
+    `insert into templates (id, data, added) values ($1,$2,$3)
+     on conflict (id) do update set data=excluded.data, updated_at=now()`,
+    [req.params.id, data, Number(added) || Date.now()]
+  );
+  res.json({ ok: true });
+}));
+
+app.post('/api/templates/:id/video', upload.single('file'), wrap(async (req, res) => {
+  if (!idOk(req.params.id)) throw bad('Bad template id');
+  const f = req.file;
+  if (!f) throw bad('No file received');
+  const ext = VIDEO_EXT[f.mimetype];
+  if (!ext) throw bad('Templates must be MP4, MOV or WebM videos');
+  const path = `templates/${req.params.id}.${ext}`;
+  const { error } = await supabase.storage.from(BUCKET).upload(path, f.buffer, { contentType: f.mimetype, upsert: true });
+  if (error) throw new Error(`Upload failed: ${error.message}`);
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
+  await pool.query(
+    `insert into templates (id, video_url, video_path, video_type, added) values ($1,$2,$3,$4,$5)
+     on conflict (id) do update set video_url=$2, video_path=$3, video_type=$4`,
+    [req.params.id, data.publicUrl, path, f.mimetype, Date.now()]
+  );
+  res.json({ ok: true });
+}));
+
+app.get('/api/templates/:id/video', wrap(async (req, res) => {
+  const { rows: [t] } = await pool.query('select video_url, video_type from templates where id=$1', [req.params.id]);
+  if (!t || !t.video_url) throw notFound('No video for this template');
+  await proxy(t.video_url, t.video_type || 'video/mp4', res);
+}));
+
+app.delete('/api/templates/:id', wrap(async (req, res) => {
+  const { rows: [t] } = await pool.query('delete from templates where id=$1 returning video_path', [req.params.id]);
+  if (t && t.video_path) await supabase.storage.from(BUCKET).remove([t.video_path]).catch(() => {});
+  res.json({ ok: true });
+}));
+
+app.put('/api/templates-config', wrap(async (req, res) => {
+  const { cal2, fontName } = req.body || {};
+  const data = { cal2: Number(cal2) || 1, fontName: fontName || null };
+  await pool.query(
+    `insert into editor_config (id, data) values (1,$1)
+     on conflict (id) do update set data = editor_config.data || $1::jsonb`,
+    [data]
+  );
+  res.json({ ok: true });
+}));
+
+app.post('/api/templates-config/font', upload.single('file'), wrap(async (req, res) => {
+  const f = req.file;
+  if (!f) throw bad('No font received');
+  const ext = (f.originalname.split('.').pop() || 'ttf').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 5) || 'ttf';
+  const type = f.mimetype || 'application/octet-stream';
+  const path = `templates/font.${ext}`;
+  const { error } = await supabase.storage.from(BUCKET).upload(path, f.buffer, { contentType: type, upsert: true });
+  if (error) throw new Error(`Upload failed: ${error.message}`);
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
+  await pool.query(
+    `insert into editor_config (id, font_url, font_path, font_type) values (1,$1,$2,$3)
+     on conflict (id) do update set font_url=$1, font_path=$2, font_type=$3`,
+    [data.publicUrl, path, type]
+  );
+  res.json({ ok: true });
+}));
+
+app.get('/api/templates-config/font', wrap(async (req, res) => {
+  const { rows: [c] } = await pool.query('select font_url, font_type from editor_config where id=1');
+  if (!c || !c.font_url) throw notFound('No custom font saved');
+  await proxy(c.font_url, c.font_type || 'application/octet-stream', res);
 }));
 
 app.use(express.static(new URL('../public', import.meta.url).pathname));
