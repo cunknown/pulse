@@ -3,50 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pulse · Editor</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@700;800&display=swap">
-<style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark;--bg:#000;--pn:rgba(255,255,255,.045);--bd:rgba(255,255,255,.1);--ac:#35c8ff;--ac2:#0a84ff;--tx:#f5f5f7;--mu:#8e9099;--ok:#30d158;--hot:#ff375f;--glow:0 0 20px rgba(53,200,255,.45);--m:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Helvetica Neue",Arial,sans-serif}
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:#000 radial-gradient(70% 45% at 50% -10%,rgba(10,132,255,.3),transparent 70%) fixed;color:var(--tx);font:14px/1.5 var(--m);-webkit-font-smoothing:antialiased}
-header{padding:14px 24px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;background:rgba(0,0,0,.55);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:5}
-.logo{font-weight:700;font-size:19px;letter-spacing:-.02em;background:linear-gradient(90deg,#fff,var(--ac));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 10px rgba(53,200,255,.5))}.logo i{display:none}
-.sub{color:var(--mu);font-size:12px;flex:1}
-.led{font-size:12px;color:var(--ac);padding:4px 12px;border:1px solid rgba(53,200,255,.35);border-radius:980px;box-shadow:0 0 14px rgba(53,200,255,.2)}.led:before{content:"";display:inline-block;width:7px;height:7px;background:var(--ac);border-radius:50%;margin-right:8px;box-shadow:0 0 10px var(--ac);animation:pl 2s infinite}
-@keyframes pl{50%{opacity:.35}}
-main{display:grid;grid-template-columns:minmax(260px,1fr) minmax(300px,1.1fr);gap:20px;padding:22px;max-width:1200px;margin:auto}
-@media(max-width:800px){main{grid-template-columns:1fr}}
-.p{position:relative;background:var(--pn);border:1px solid var(--bd);border-radius:22px;padding:20px;margin-bottom:20px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 14px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05)}
-h2{margin:0 0 14px;font-size:16px;font-weight:600;letter-spacing:-.01em;color:var(--tx)}h2 b{color:var(--ac);font-weight:500;margin-left:4px}
-.drop{border:1.5px dashed rgba(53,200,255,.4);border-radius:16px;padding:24px;text-align:center;color:var(--mu);cursor:pointer;transition:.2s}
-.drop:hover,.drop.on{border-style:solid;border-color:var(--ac);color:var(--ac);background:rgba(53,200,255,.06);box-shadow:var(--glow),inset 0 0 24px rgba(53,200,255,.08)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:10px;margin-top:14px;max-height:44vh;overflow:auto}
-.c{position:relative;aspect-ratio:9/16;border:1px solid var(--bd);border-radius:12px;cursor:pointer;background:#000;overflow:hidden;transition:.2s}
-.c:hover{border-color:rgba(53,200,255,.6)}.c.s{border-color:var(--ac);box-shadow:var(--glow)}
-.c img{width:100%;height:100%;object-fit:cover}.c span{position:absolute;bottom:0;left:0;right:0;font-size:10px;padding:14px 6px 4px;background:linear-gradient(transparent,rgba(0,0,0,.85));color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-label{display:block;font-size:12px;font-weight:500;color:var(--mu);margin:16px 0 6px}
-textarea{width:100%;padding:11px 13px;background:rgba(255,255,255,.06);border:1px solid var(--bd);border-radius:12px;color:var(--tx);font:inherit;outline:0;resize:vertical;transition:.2s}textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(53,200,255,.18),var(--glow)}
-input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;width:100%;height:26px;margin:0;border:0;padding:0}
-input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:rgba(255,255,255,.16)}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;margin-top:-7px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(53,200,255,.55),0 2px 8px rgba(0,0,0,.5)}
-input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:rgba(255,255,255,.16)}
-input[type=range]::-moz-range-thumb{width:18px;height:18px;border:0;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(53,200,255,.55),0 2px 8px rgba(0,0,0,.5)}
-button{background:rgba(255,255,255,.08);color:var(--tx);border:1px solid var(--bd);border-radius:980px;font:500 13px var(--m);padding:9px 16px;cursor:pointer;transition:.2s}
-button:hover:not(:disabled){background:rgba(255,255,255,.15);border-color:rgba(53,200,255,.5)}
-button.pri{background:linear-gradient(180deg,#4fd2ff,var(--ac2));border-color:transparent;color:#fff;box-shadow:var(--glow)}
-button.pri:hover:not(:disabled){background:linear-gradient(180deg,#6adbff,#2b95ff);box-shadow:0 0 28px rgba(53,200,255,.7)}
-button.sm{padding:6px 12px;font-size:12px}button.dng{color:var(--hot);border-color:rgba(255,55,95,.4)}button.dng:hover:not(:disabled){background:var(--hot);color:#fff;border-color:var(--hot);box-shadow:0 0 18px rgba(255,55,95,.5)}
-button:disabled{opacity:.45;cursor:wait}
-.r{display:flex;gap:8px;align-items:center}.r>*{flex:1}
-.pv{position:relative;container-type:inline-size;max-width:230px;margin:auto;background:#000;border:1px solid rgba(53,200,255,.5);border-radius:22px;overflow:hidden;box-shadow:0 0 28px rgba(53,200,255,.25)}
-.pv video{width:100%;display:block;aspect-ratio:9/16;object-fit:cover}
-.tx{position:absolute;transform:translate(-50%,-50%) scaleX(var(--sx,1));text-align:center;color:#fff;font:700 calc(var(--s)*1cqw)/1.2 "IGCustom",Figtree,-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-text-stroke:calc(var(--s)*.06cqw) #000;paint-order:stroke fill;text-shadow:0 calc(var(--s)*.03cqw) calc(var(--s)*.1cqw) #0009;pointer-events:none;white-space:pre-wrap}
-.sc{position:relative;margin:16px 0 4px}.sc i{position:absolute;top:2px;bottom:2px;width:2px;border-radius:1px;background:var(--hot);box-shadow:0 0 8px var(--hot);pointer-events:none;left:0}
-.nd{display:flex;gap:6px;margin:10px 0}.nd button{flex:1;padding:7px 2px;font-size:11px}
-.mu{color:var(--mu);font-size:12px}.hl{color:var(--hot)}
-.bar{height:6px;border-radius:3px;overflow:hidden;background:rgba(255,255,255,.1);margin-top:14px}.bar i{display:block;height:100%;width:0;border-radius:3px;background:linear-gradient(90deg,var(--ac2),var(--ac));box-shadow:0 0 14px var(--ac)}
-.out{display:flex;gap:10px;align-items:center;padding:10px;border-radius:14px;border-top:1px solid transparent;cursor:pointer;transition:.2s}.out video{width:46px;aspect-ratio:9/16;object-fit:cover;border-radius:8px;border:1px solid var(--bd)}.out a{color:var(--ok);text-decoration:none;word-break:break-all}
-.out:hover{background:rgba(255,255,255,.05)}.out.s{background:rgba(53,200,255,.1);box-shadow:inset 0 0 0 1px rgba(53,200,255,.45)}.op{margin-bottom:14px}.op .pv{cursor:pointer}
-::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:4px}
-</style><link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>">
 <link rel="stylesheet" href="/pulse.css">
 </head><body>
 <header><a class="brand" href="/">Pulse</a><div class="seg" id="nav"><a href="/#overview">Overview</a><a href="/#schedule">Schedule</a><a href="/#accounts">Accounts</a><a href="/editor.html" class="on">Editor</a></div><span style="min-width:140px"></span></header>
@@ -56,12 +13,13 @@ button:disabled{opacity:.45;cursor:wait}
  <div class="p"><h2>Templates <b><span id="n">0</span></b></h2>
   <div class="drop" id="td">Drop original verticals<input id="tf" type="file" accept="video/*" multiple hidden></div>
   <button class="sm" id="rdA" hidden style="margin-top:10px;width:100%">⚡ Read caption text from all templates</button>
-  <div class="grid" id="grid"></div></div>
+  <div class="r" style="margin-top:10px"><button class="sm" id="exA">Export templates</button><button class="sm" id="imA">Import templates</button></div><input id="imF" type="file" accept=".rsw" hidden>
+  <div class="tgrid" id="grid"></div></div>
  <div class="p"><h2>Target feed</h2>
   <div class="drop" id="md">Drop model video<input id="mf" type="file" accept="video/*" hidden></div>
   <div class="mu" id="mn" style="margin-top:8px">no feed loaded</div>
   <div class="r" style="margin-top:12px"><button id="r1" class="pri">▶ Run selected</button><button id="rA">▶▶ Run all</button></div>
-  <div class="bar"><i id="pb"></i></div><div class="mu" id="st" style="margin-top:8px">idle. keep this tab visible while rendering.</div></div>
+  <div class="pbar"><i id="pb"></i></div><div class="mu" id="st" style="margin-top:8px">idle. keep this tab visible while rendering.</div></div>
  <div class="p"><h2>Output</h2>
   <div id="opl" hidden class="op"><div class="pv" id="opw"><video id="opv" playsinline></video></div>
    <input id="oscr" type="range" min="0" max="1" step="0.01" value="0" style="margin-top:10px">
@@ -254,5 +212,31 @@ async function sendToPulse(r,btn){
 $('#r1').onclick=()=>sel?run([sel]):($('#st').textContent='select a template first.');$('#rA').onclick=()=>run([...T]);
 $('#dl').onclick=async()=>{for(const r of R){if(!await saveFile(r))break}};
 const fontReady=document.fonts?document.fonts.load('700 100px Figtree').then(()=>document.fonts.ready).catch(()=>{}):Promise.resolve();
+
+/* template backup: export / import everything stored in this browser (blobs kept as raw bytes) */
+async function exportAll(){
+ const rows=await store('all');if(!rows.length){$('#st').textContent='nothing to export yet.';return}
+ const blobs=[],meta=[];
+ for(const r of rows){const o={};for(const k in r){const v=r[k];if(v instanceof Blob){o[k]={__blob:blobs.length,type:v.type,size:v.size};blobs.push(v)}else o[k]=v}meta.push(o)}
+ const head=new TextEncoder().encode(JSON.stringify({v:1,rows:meta})),len=new Uint8Array(8);new DataView(len.buffer).setUint32(0,head.length);
+ const blob=new Blob([len,head,...blobs],{type:'application/octet-stream'});
+ await saveFile({name:'reelswap-templates.rsw',blob,url:URL.createObjectURL(blob)});
+ $('#st').textContent=`exported ${rows.filter(r=>r.id!=='__cfg').length} template(s).`}
+$('#exA').onclick=async()=>{const b=$('#exA');b.disabled=true;try{await exportAll()}catch(e){$('#st').textContent='export failed: '+(e&&e.message||e)}b.disabled=false};
+
+async function importAll(file){
+ $('#st').textContent='importing templates…';await fontReady;
+ const hl=new DataView(await file.slice(0,8).arrayBuffer()).getUint32(0);
+ const head=JSON.parse(await file.slice(8,8+hl).text());
+ if(!head||!Array.isArray(head.rows))throw new Error('this is not a template file');
+ const refs=[];for(const o of head.rows)for(const k in o){const v=o[k];if(v&&typeof v==='object'&&'__blob' in v)refs[v.__blob]=v}
+ let pos=8+hl;const blobs=refs.map(r=>{const b=file.slice(pos,pos+r.size,r.type);pos+=r.size;return b});
+ if(pos>file.size)throw new Error('the file is incomplete');
+ let n=0;
+ for(const o of head.rows){const r={};for(const k in o){const v=o[k];r[k]=v&&typeof v==='object'&&'__blob' in v?blobs[v.__blob]:v}await store('put',r);if(r.id!=='__cfg')n++}
+ await init();T.forEach(t=>t.geo&&fit(t));sel=null;$('#form').hidden=true;$('#none').hidden=false;list();
+ $('#st').textContent=`imported ${n} template(s).`}
+$('#imA').onclick=()=>$('#imF').click();
+$('#imF').onchange=async()=>{const f=$('#imF').files[0];$('#imF').value='';if(!f)return;try{await importAll(f)}catch(e){$('#st').textContent='import failed: '+(e&&e.message||e)}};
 init().then(()=>fontReady).then(()=>{T.forEach(t=>t.geo&&fit(t));if(sel){sliders();prev()}});
 </script></body></html>
