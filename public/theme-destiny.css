@@ -4,7 +4,7 @@
 
 /* ---------- tokens ---------- */
 :root{
- --void:#06080A;--panel:rgba(10,14,16,.78);--panel-solid:#0C1114;
+ --void:#06080A;--panel:rgba(10,14,16,.86);--panel-solid:#0C1114;
  --rule:rgba(255,255,255,.10);--rule-strong:rgba(255,255,255,.26);
  --text:#ECEAE4;--text-dim:#8E979A;--text-faint:#566064;
  --accent:#BFF4F0;--accent-glow:rgba(150,240,235,.18);
@@ -26,7 +26,7 @@
  --hex:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='48' fill='none' stroke='%239C7A45' stroke-width='1' opacity='.22'%3E%3Cpath d='M14 0L0 24l14 24h28l14-24L42 0z'/%3E%3C/svg%3E");
 }
 html[data-theme="crota"]{
- --void:#040504;--panel:rgba(10,12,9,.80);--panel-solid:#0B0D0A;
+ --void:#040504;--panel:rgba(10,12,9,.88);--panel-solid:#0B0D0A;
  --rule:rgba(210,220,190,.10);--rule-strong:rgba(210,220,190,.24);
  --text:#E2E2D4;--text-dim:#8B8E7E;--text-faint:#5A5E4E;
  --accent:#9BE35A;--accent-glow:rgba(140,230,80,.16);
@@ -41,15 +41,6 @@ html[data-theme="crota"]{
 /* ---------- base + atmosphere ---------- */
 html{overflow-x:hidden}
 body{font-family:var(--m);font-weight:400;background:var(--bg-art),var(--void);background-attachment:fixed;color:var(--text);font-variant-numeric:tabular-nums}
-/* vault door (middle ring rotates in ::after, inner counter-rotates inside it) */
-body::before,body::after{content:"";position:fixed;left:50%;top:-18vmin;width:min(110vmin,980px,100vw);height:min(110vmin,980px,100vw);margin-left:calc(min(110vmin,980px,100vw)/-2);pointer-events:none;z-index:-1;background-repeat:no-repeat;background-size:contain;opacity:.06}
-body::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400' fill='none' stroke='%239C7A45' stroke-width='1.2'%3E%3Ccircle cx='200' cy='200' r='196'/%3E%3Ccircle cx='200' cy='200' r='186'/%3E%3Ccircle cx='200' cy='200' r='64'/%3E%3Cg id='s'%3E%3Cpath d='M200 4l4 14h-8zM200 396l4-14h-8zM4 200l14 4v-8zM396 200l-14 4v-8z'/%3E%3C/g%3E%3Cg transform='rotate(30 200 200)'%3E%3Cpath d='M200 4l4 14h-8zM200 396l4-14h-8zM4 200l14 4v-8zM396 200l-14 4v-8z'/%3E%3C/g%3E%3Cg transform='rotate(60 200 200)'%3E%3Cpath d='M200 4l4 14h-8zM200 396l4-14h-8zM4 200l14 4v-8zM396 200l-14 4v-8z'/%3E%3C/g%3E%3C/svg%3E")}
-body::after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400' fill='none' stroke='%239C7A45' stroke-width='1.2'%3E%3Ccircle cx='200' cy='200' r='150'/%3E%3Ccircle cx='200' cy='200' r='128' stroke-dasharray='2 6'/%3E%3Ccircle cx='200' cy='200' r='100'/%3E%3Cpath d='M200 50V74M200 326V350M50 200H74M326 200H350M94 94l16 16M290 290l16 16M306 94l-16 16M94 306l16-16'/%3E%3C/svg%3E");animation:d-spin 180s linear infinite}
-@keyframes d-spin{to{transform:rotate(360deg)}}
-/* Crota: gothic arch, static */
-html[data-theme="crota"] body::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400' fill='none' stroke='%23A79C7E' stroke-width='1.2'%3E%3Cpath d='M60 400V190Q60 70 200 6Q340 70 340 190V400'/%3E%3Cpath d='M100 400V200Q100 100 200 40Q300 100 300 200V400'/%3E%3Cpath d='M140 400V210Q140 130 200 80Q260 130 260 210V400'/%3E%3Cpath d='M200 6V80M60 190l-10-8M340 190l10-8M60 260l-12 4M340 260l12 4M200 6l-5-14 10 0z'/%3E%3C/svg%3E");width:min(90vmin,760px);margin-left:calc(min(90vmin,760px)/-2);height:min(110vmin,980px);top:-6vmin}
-html[data-theme="crota"] body::after{display:none}
-@media (prefers-reduced-motion:reduce){body::after{animation:none}}
 ::selection{background:var(--text);color:#000}
 select option{background:var(--panel-solid)}
 :focus-visible{outline:1px solid var(--accent);outline-offset:3px}
@@ -257,3 +248,176 @@ main input[type=range]::-webkit-slider-thumb{background:var(--text)}main input[t
 @media (prefers-reduced-motion:reduce){
  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
 }
+
+/* =====================================================================
+   LIVING SCENES (markup is created by theme-destiny.js)
+   ===================================================================== */
+.vog-scene,.crota-scene{position:fixed;inset:0;z-index:-1;pointer-events:none;contain:strict;overflow:hidden;display:none}
+html:not([data-theme="crota"]) .vog-scene{display:block}
+html[data-theme="crota"] .crota-scene{display:block}
+.sl{position:absolute;inset:-24px;transform:translate3d(calc(var(--mx,0)*var(--k,0)*1px),calc(var(--my,0)*var(--k,0)*1px),0)}
+.sl svg{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible}
+.sl i{position:absolute;display:block;border-radius:50%}
+@keyframes d-spin{to{transform:rotate(360deg)}}
+@keyframes d-bob{from{transform:translateY(-6px)}to{transform:translateY(6px)}}
+
+/* ----- Vault of Glass ----- */
+.vog-scene .vfog{position:absolute;left:0;right:0;bottom:0;height:52%;background:linear-gradient(0deg,rgba(30,58,54,.38),transparent)}
+.fogb{position:absolute;left:-30%;width:160%;height:130px;background:linear-gradient(90deg,transparent,rgba(30,58,54,.9) 30%,rgba(30,58,54,.9) 70%,transparent);opacity:.08;animation:d-fog 75s ease-in-out infinite alternate}
+.fogb.b1{top:58%;animation-duration:60s}.fogb.b2{top:72%;height:160px;opacity:.1;animation-duration:75s;animation-delay:-20s}.fogb.b3{top:84%;opacity:.07;animation-duration:90s;animation-delay:-45s}
+@keyframes d-fog{from{transform:translateX(-12%)}to{transform:translateX(12%)}}
+.vault-door{opacity:.07}
+.vault-door *{fill:none;stroke:var(--bronze);stroke-width:2.2}
+.vault-door .vault-ring{transform-origin:center;transform-box:fill-box}
+.vault-ring--middle{animation:d-spin 180s linear infinite}
+.vault-ring--inner{animation:d-spin 180s linear infinite reverse}
+.door-core{fill:url(#vcore);opacity:.12;animation:d-breathe 10s ease-in-out infinite;transform-origin:center}
+@keyframes d-breathe{0%,100%{opacity:.07}50%{opacity:.2}}
+.pl{fill:none;stroke:rgba(156,122,69,.3);stroke-width:1.5}
+.pp{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:5 200;stroke-dashoffset:5;opacity:.7;animation:pl-run 4s linear infinite}
+@keyframes pl-run{from{stroke-dashoffset:5}to{stroke-dashoffset:-105}}
+.gate-fill{fill:var(--accent);opacity:.1}
+.gate-frame{fill:none;stroke:var(--bronze);stroke-width:2;opacity:.45}
+.gate-shim{animation:gate-shim 6s linear infinite}
+@keyframes gate-shim{from{transform:translateY(264px)}to{transform:translateY(-264px)}}
+.mote{fill:var(--text);opacity:0;animation:mote 6s ease-in infinite}
+@keyframes mote{0%{transform:translate(var(--dx),var(--dy));opacity:0}25%{opacity:.8}90%{opacity:0;transform:translate(0,0)}100%{opacity:0}}
+.bob{animation:d-bob 8s ease-in-out infinite alternate}
+.orc{opacity:.3;animation:orc0 20s linear infinite}
+.o0{animation-name:orc0}.o1{animation-name:orc1}.o2{animation-name:orc2}.o3{animation-name:orc3}.o4{animation-name:orc4}.o5{animation-name:orc5}.o6{animation-name:orc6}
+@keyframes orc0{0%,1%{opacity:.3}2%,17%{opacity:1}22%,100%{opacity:.3}}
+@keyframes orc1{0%,2.6%{opacity:.3}3.6%,17%{opacity:1}22%,100%{opacity:.3}}
+@keyframes orc2{0%,4.2%{opacity:.3}5.2%,17%{opacity:1}22%,100%{opacity:.3}}
+@keyframes orc3{0%,5.8%{opacity:.3}6.8%,17%{opacity:1}22%,100%{opacity:.3}}
+@keyframes orc4{0%,7.4%{opacity:.3}8.4%,17%{opacity:1}22%,100%{opacity:.3}}
+@keyframes orc5{0%,9%{opacity:.3}10%,17%{opacity:1}22%,100%{opacity:.3}}
+@keyframes orc6{0%,10.6%{opacity:.3}11.6%,17%{opacity:1}22%,100%{opacity:.3}}
+.pil rect{fill:#070b0d;stroke:rgba(156,122,69,.3);stroke-width:1.5}
+.pil path{fill:none;stroke:rgba(156,122,69,.2);stroke-width:1.5}
+.pil .trim{stroke:rgba(156,122,69,.4)}
+.plat{transform-box:fill-box;animation:d-bob 10s ease-in-out infinite alternate}
+.plat .pt{fill:rgba(216,211,198,.3);stroke:rgba(216,211,198,.25)}
+.plat .ps{fill:#080c0e;stroke:rgba(156,122,69,.3)}
+.watch{opacity:0;animation:watch 31s linear infinite}
+@keyframes watch{0%,60%{opacity:0;transform:translateX(-6px)}64%{opacity:.9}80%{opacity:.9;transform:translateX(6px)}86%,100%{opacity:0;transform:translateX(6px)}}
+.rad{bottom:-10px;width:3px;height:3px;background:var(--text);opacity:0;animation:rad 18s linear infinite}
+@keyframes rad{0%{transform:translate3d(0,0,0);opacity:0}15%{opacity:.6}85%{opacity:.5}100%{transform:translate3d(var(--dx),-80vh,0);opacity:0}}
+.fgp rect{fill:#030506}
+.glitch{position:absolute;left:0;right:0;top:36%;height:7px;background:rgba(191,244,240,.05);border-top:1px solid rgba(191,244,240,.28);opacity:0;animation:glitch 40s steps(1,end) infinite}
+@keyframes glitch{0%,96%{opacity:0;transform:translateX(0)}96.3%{opacity:1;transform:translateX(6px)}96.6%{transform:translateX(-5px)}96.9%{transform:translateX(5px)}97.2%,100%{opacity:0;transform:translateX(0)}}
+/* conflux icon on the first bounty */
+#plist .row:first-child .status-cap::before{content:"";display:inline-block;width:8px;height:12px;margin-right:8px;vertical-align:-1px;background:var(--accent);clip-path:polygon(0 0,100% 0,50% 50%,100% 100%,0 100%,50% 50%)}
+
+/* VoG activation: lock-spin + flare + power surge + oracle sequence */
+.is-activating .vault-ring{will-change:rotate}
+.is-activating .vault-ring--outer{animation:d-spin 180s linear infinite,vault-spin-outer 1.8s cubic-bezier(.16,1,.3,1) both}
+.is-activating .vault-ring--middle{animation:d-spin 180s linear infinite,vault-spin-middle 1.8s cubic-bezier(.16,1,.3,1) both}
+.is-activating .vault-ring--inner{animation:d-spin 180s linear infinite reverse,vault-spin-inner 1.8s cubic-bezier(.16,1,.3,1) both}
+@keyframes vault-spin-outer{from{rotate:0deg}to{rotate:60deg}}
+@keyframes vault-spin-middle{from{rotate:0deg}to{rotate:-120deg}}
+@keyframes vault-spin-inner{from{rotate:0deg}to{rotate:180deg}}
+.is-activating .vault-door{will-change:opacity;animation:door-flash 1.8s ease-out}
+@keyframes door-flash{0%,100%{opacity:.07}30%{opacity:.16}}
+.is-activating .vault-ticks{animation:tick-pulse 1.8s ease-out}
+@keyframes tick-pulse{0%,100%{opacity:1}35%{opacity:2.2}}
+.is-activating .door-core{animation:core-flare 1.8s ease-out}
+@keyframes core-flare{0%{opacity:.07}20%{opacity:.5}100%{opacity:.07}}
+.is-activating .pp{animation:pl-run 1.2s ease-out 1;animation-delay:0s!important}
+.is-activating .orc{animation:orc-act .9s ease-out both;animation-delay:calc(var(--i)*80ms)}
+@keyframes orc-act{0%{opacity:.3}30%,60%{opacity:1}100%{opacity:.3}}
+.is-activating .gate-fill{animation:gate-bright 1.8s ease-out}
+@keyframes gate-bright{0%,100%{opacity:.1}30%{opacity:.4}}
+.is-activating .watch{animation:watch-act 1.6s ease-out}
+@keyframes watch-act{0%{opacity:0;transform:translateX(0)}15%{opacity:.9}60%{opacity:.9;transform:translateX(var(--c))}100%{opacity:0;transform:translateX(var(--c))}}
+
+/* ----- Crota's End ----- */
+.crota-scene .cglow{position:absolute;left:50%;top:0;width:900px;max-width:100%;height:100%;margin-left:-450px;background:radial-gradient(50% 40% at 50% 38%,rgba(24,36,15,.9),transparent 70%);opacity:.5;animation:d-breathe2 10s ease-in-out infinite}
+@keyframes d-breathe2{0%,100%{opacity:.35}50%{opacity:.6}}
+.star{fill:#dfeaff;opacity:.5;animation:twinkle 4s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.7}}
+.shaft{opacity:.08;animation:shaft 12s ease-in-out infinite}
+@keyframes shaft{0%,100%{opacity:.08}50%{opacity:.11}}
+.arch path{fill:none;stroke:var(--bronze);stroke-width:2;opacity:.1}
+.rune{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:.12;animation:rune-flick 14s ease-in-out infinite}
+@keyframes rune-flick{0%,86%,100%{opacity:.12}90%{opacity:.35}94%{opacity:.14}}
+.spire path:first-child{fill:#070a06;stroke:rgba(167,156,126,.2);stroke-width:1.5}
+.spire .rib{fill:none;stroke:rgba(167,156,126,.14);stroke-width:1.5}
+.drip{fill:#050704;stroke:rgba(167,156,126,.12)}
+.bowl{fill:#0b0d0a;stroke:rgba(167,156,126,.35)}
+.fl{fill:var(--accent);opacity:.9;transform-box:fill-box;transform-origin:50% 100%;animation:flick 1s ease-in-out infinite}
+@keyframes flick{0%,100%{transform:scale(1,1);opacity:.9}50%{transform:scale(.88,1.18);opacity:.62}}
+.cf{fill:var(--accent);opacity:.85;transform-box:fill-box;transform-origin:50% 100%;animation:flick 1s ease-in-out infinite}
+.brazier{animation:b-dip 42s linear infinite}
+@keyframes b-dip{0%,90%{opacity:1}90.6%{opacity:.4}91.2%{opacity:1}92%{opacity:.6}92.6%,100%{opacity:1}}
+.ember{bottom:-6px;width:3px;height:3px;background:var(--text);opacity:0;animation:ember 16s linear infinite}
+.ember.g{background:var(--accent);width:2px;height:2px}
+@keyframes ember{0%{transform:translate3d(0,0,0);opacity:0}10%{opacity:.7}25%{transform:translate3d(8px,-22vh,0)}50%{transform:translate3d(-6px,-45vh,0)}75%{transform:translate3d(6px,-68vh,0);opacity:.5}100%{transform:translate3d(var(--dx),-92vh,0);opacity:0}}
+.bseg{fill:#0b0e0a;stroke:rgba(167,156,126,.22);stroke-width:1.2}
+.sg{fill:var(--accent);opacity:0}
+.pit{position:absolute;left:50%;bottom:-6%;width:1100px;max-width:130%;height:46%;margin-left:-550px;background:radial-gradient(50% 70% at 50% 100%,rgba(155,227,90,.28),transparent 70%);opacity:.5;animation:heart 6s ease-in-out infinite}
+@keyframes heart{0%,100%{opacity:.5}6%{opacity:.8}12%{opacity:.55}18%{opacity:.78}30%{opacity:.5}}
+.chant{position:absolute;left:50%;bottom:-10%;width:700px;height:260px;margin-left:-350px;border:1px solid var(--accent);border-radius:50%;opacity:0;animation:chant 25s ease-out infinite}
+@keyframes chant{0%{transform:scale(.6);opacity:0}1%{opacity:.5}12%{transform:scale(1.6);opacity:0}100%{transform:scale(1.6);opacity:0}}
+.tendril{position:absolute;width:32vw;height:44vh;opacity:.55;animation:tendril 22s ease-in-out infinite alternate}
+.tendril.t1{left:-6vw;top:8vh;background:radial-gradient(ellipse at 0% 50%,rgba(0,0,0,.85),transparent 70%)}
+.tendril.t2{left:-8vw;bottom:6vh;background:radial-gradient(ellipse at 0% 50%,rgba(0,0,0,.9),transparent 70%);animation-duration:26s;animation-delay:-8s}
+.tendril.t3{right:-6vw;top:20vh;background:radial-gradient(ellipse at 100% 50%,rgba(0,0,0,.85),transparent 70%);animation-name:tendril-r;animation-duration:18s}
+.tendril.t4{right:-8vw;bottom:2vh;background:radial-gradient(ellipse at 100% 50%,rgba(0,0,0,.9),transparent 70%);animation-name:tendril-r;animation-duration:24s;animation-delay:-11s}
+@keyframes tendril{from{transform:translateX(0);opacity:.5}to{transform:translateX(8vw);opacity:.9}}
+@keyframes tendril-r{from{transform:translateX(0);opacity:.5}to{transform:translateX(-8vw);opacity:.9}}
+.eyes{opacity:0;transform-box:fill-box;transform-origin:center;animation:eyes 33s linear infinite}
+@keyframes eyes{0%,68%{opacity:0;transform:scaleY(1)}71%{opacity:.4}80%{opacity:.4;transform:scaleY(1)}80.2%{transform:scaleY(.1)}80.5%{transform:scaleY(1)}86%,100%{opacity:0;transform:scaleY(1)}}
+.chain{fill:none;stroke:rgba(167,156,126,.3);stroke-width:2;stroke-dasharray:5 4;transform-box:fill-box;transform-origin:50% 0;animation:sway 10s ease-in-out infinite alternate}
+.chain path{fill:none;stroke:rgba(167,156,126,.3);stroke-width:2;stroke-dasharray:5 4}
+@keyframes sway{from{transform:rotate(-1.5deg)}to{transform:rotate(1.5deg)}}
+.cfg path:first-child{fill:#010201}
+.vig{position:absolute;inset:-4%;background:radial-gradient(ellipse at 50% 45%,transparent 38%,rgba(0,0,0,.85) 100%);animation:vig 16s ease-in-out infinite}
+@keyframes vig{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.surge{position:absolute;inset:0;background:#000;opacity:0;animation:surge 42s linear infinite}
+@keyframes surge{0%,90%{opacity:0}90.6%{opacity:.35}91.2%{opacity:0}92%{opacity:.2}92.6%,100%{opacity:0}}
+
+/* Crota activation: the awakening */
+.is-awakening .rune{animation:rune-ign 2s ease-out both;animation-delay:calc(var(--i)*60ms)}
+@keyframes rune-ign{0%{opacity:.12}15%,55%{opacity:1}100%{opacity:.12}}
+.is-awakening .sg{animation:sg-glow 1.8s ease-out both;animation-delay:calc(var(--i)*140ms)}
+@keyframes sg-glow{0%{opacity:0}25%,60%{opacity:.7}100%{opacity:0}}
+.is-awakening .eyes{animation:eyes-act 2.6s ease-out}
+@keyframes eyes-act{0%{opacity:0;transform:scaleY(1)}12%{opacity:.4}55%{opacity:.4;transform:scaleY(1)}60%{transform:scaleY(.1)}65%{transform:scaleY(1)}80%{opacity:.4}100%{opacity:0}}
+.is-awakening .pit{animation:pit-surge 2s ease-out}
+@keyframes pit-surge{0%{opacity:.5}20%{opacity:1}100%{opacity:.5}}
+.is-awakening .chant{animation:chant-act 3s ease-out}
+@keyframes chant-act{0%{transform:scale(.6);opacity:0}8%{opacity:.5}100%{transform:scale(1.6);opacity:0}}
+.is-awakening .fl,.is-awakening .cf{animation:flick 1s ease-in-out infinite,flare .4s ease-out 1}
+@keyframes flare{0%{scale:1}40%{scale:1.5}100%{scale:1}}
+.is-awakening .tendril{animation:tend-pull 2s ease-in-out}
+@keyframes tend-pull{0%{opacity:.55}15%{transform:translateX(-100%);opacity:.1}100%{opacity:.55}}
+.is-awakening .tendril.t3,.is-awakening .tendril.t4{animation-name:tend-pull-r}
+@keyframes tend-pull-r{0%{opacity:.55}15%{transform:translateX(100%);opacity:.1}100%{opacity:.55}}
+
+/* mobile: lighter scenes */
+@media(max-width:720px){
+ .sl.fg{display:none}
+ .sl{transform:none}
+ .rad:nth-child(even),.ember:nth-child(even){display:none}
+ .vog-scene .pl:nth-of-type(n+4),.vog-scene .pp:nth-of-type(n+4){display:none}
+}
+@media(hover:none){.sl{transform:none}}
+
+/* reduced motion: scenes fully static, only a 300ms glow on tab switch */
+@media (prefers-reduced-motion:reduce){
+ .rad,.ember,.watch,.eyes,.glitch,.surge,.tendril,.chant,.mote,.pp{display:none!important}
+ .sl{transform:none!important}
+ .is-activating .door-core,.is-awakening .pit{animation:calm-glow .3s ease-out 1!important}
+ @keyframes calm-glow{from{opacity:.5}to{opacity:.12}}
+}
+
+/* settings view + Oracle/flame loader + misc */
+.set{display:grid;grid-template-columns:200px 1fr;gap:28px;align-items:start}
+.set-cats{border-right:1px solid var(--rule);padding:6px 0}
+.set-cats span{display:block;padding:10px 16px;font-size:11px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--text-dim)}
+.set-cats span.on{color:var(--text);box-shadow:inset 2px 0 0 var(--text)}
+.set-row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 24px;border-bottom:1px solid var(--rule)}
+.set-row:last-child{border-bottom:0}
+.set-row b{display:block;font-weight:500;letter-spacing:.06em}
+.set-row small{display:block;margin-top:2px;color:var(--text-dim);font-style:italic;font-size:12px}
+@media(max-width:720px){.set{grid-template-columns:1fr}.set-cats{border-right:0;border-bottom:1px solid var(--rule);display:flex}.set-row{flex-wrap:wrap}}

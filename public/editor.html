@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="/pulse.css">
 <link rel="stylesheet" href="/theme-destiny.css">
 </head><body>
-<header><a class="brand" href="/">Pulse</a><div class="seg" id="nav"><a href="/#overview">Overview</a><a href="/#schedule">Schedule</a><a href="/#accounts">Accounts</a><a href="/editor.html" class="on">Editor</a></div><div class="hdr-r"><button type="button" id="themeBtn" aria-label="Switch theme" title="Switch theme">◐</button></div></header>
+<header><a class="brand" href="/">Pulse</a><div class="seg" id="nav"><a href="/#overview">Overview</a><a href="/#schedule">Schedule</a><a href="/#accounts">Accounts</a><a href="/editor.html" class="on">Editor</a><a href="/#settings">Settings</a></div><div class="hdr-r"><button type="button" id="themeBtn" aria-label="Switch theme" title="Switch theme">◐</button></div></header>
 <div class="wrap" style="padding-bottom:0"><span class="cap">Loadout // Transmat</span><h1>Editor</h1><p class="sub">Splice your model into a template. The original audio stays untouched.</p></div>
 <main>
 <section>
@@ -281,5 +281,5 @@ async function importAll(file){
 $('#imA').onclick=()=>$('#imF').click();
 $('#imF').onchange=async()=>{const f=$('#imF').files[0];$('#imF').value='';if(!f)return;try{await importAll(f)}catch(e){$('#st').textContent='import failed: '+(e&&e.message||e)}};
 init().then(()=>fontReady).then(()=>{T.forEach(t=>t.geo&&fit(t));if(sel){sliders();prev()}}).then(()=>pull());
-</script><script>document.getElementById("themeBtn").onclick=function(){var r=document.documentElement,c=r.getAttribute("data-theme")==="crota";if(c)r.removeAttribute("data-theme");else r.setAttribute("data-theme","crota");try{localStorage.setItem("pulse_theme",c?"vog":"crota")}catch(e){}};</script>
+</script><script src="/theme-destiny.js"></script>
 </body></html>

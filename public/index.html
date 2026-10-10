@@ -19,6 +19,7 @@
       <button aria-pressed="false" data-v="schedule">Schedule</button>
       <button aria-pressed="false" data-v="accounts">Accounts</button>
       <button aria-pressed="false" data-v="editor">Editor</button>
+      <button aria-pressed="false" data-v="settings">Settings</button>
     </div>
     <div class="hdr-r"><label class="acct"><select id="acct" aria-label="Account"></select></label><button type="button" id="themeBtn" aria-label="Switch theme" title="Switch theme">◐</button></div>
   </header>
@@ -39,6 +40,20 @@
       <button class="btn" id="new">New post</button>
     </div>
     <div class="panel" id="plist"></div>
+  </section>
+
+  <section class="view" id="settings">
+    <span class="cap">System configuration</span>
+    <h1>Settings</h1>
+    <p class="sub">Choose how Pulse looks. Saved in this browser.</p>
+    <div class="set">
+      <div class="set-cats"><span class="on">Display</span></div>
+      <div class="panel">
+        <div class="set-row"><div><b>Theme</b><small>Vault of Glass is the default. Crota's End is the dark alternate.</small></div>
+          <div class="seg" id="tsw"><button type="button" data-theme-set="vog" aria-pressed="true">Vault of Glass</button><button type="button" data-theme-set="crota" aria-pressed="false">Crota's End</button></div></div>
+        <div class="set-row"><div><b>Scene motion</b><small>Follows your device's reduced-motion setting.</small></div></div>
+      </div>
+    </div>
   </section>
 
   <section class="view" id="accounts">
@@ -195,9 +210,6 @@ $('#form').onsubmit=async e=>{
 };
 
 document.addEventListener('pointerover',e=>{const t=e.target.closest&&e.target.closest('.post');if(!t)return;const r=t.getBoundingClientRect();t.classList.toggle('flipL',r.left<130);t.classList.toggle('flipR',r.right>innerWidth-130)});
-// ---- Theme (Vault of Glass / Crota's End) ----
-$('#themeBtn').onclick=()=>{const r=document.documentElement,c=r.getAttribute('data-theme')==='crota';if(c)r.removeAttribute('data-theme');else r.setAttribute('data-theme','crota');try{localStorage.setItem('pulse_theme',c?'vog':'crota')}catch(e){}};
-
 // ---- Boot ----
 const q=new URLSearchParams(location.search);
 if(q.get('connected'))toast('Connected @'+q.get('connected'));
@@ -206,5 +218,6 @@ if(q.has('connected')||q.has('error'))history.replaceState(null,'','/');
 load().then(()=>{const h=location.hash.slice(1);if(['schedule','accounts'].includes(h))show(h);if(q.get('connected'))show('accounts');const pf=localStorage.getItem('pulse_prefill');if(pf){localStorage.removeItem('pulse_prefill');show('schedule');$('#new').click();try{const j=JSON.parse(pf);$('#murl').value=j.url;$('#mtype').value=j.media_type;toast('Video attached')}catch(e){}}}).catch(e=>toast(e.message));
 setInterval(()=>{if(S.view==='schedule'&&!$('#dlg').open)load().catch(()=>{})},15000);
 </script>
+<script src="/theme-destiny.js"></script>
 </body>
 </html>
