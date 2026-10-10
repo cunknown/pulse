@@ -86,6 +86,7 @@ dialog textarea{resize:none}
       <button aria-pressed="true" data-v="overview">Overview</button>
       <button aria-pressed="false" data-v="schedule">Schedule</button>
       <button aria-pressed="false" data-v="accounts">Accounts</button>
+      <button aria-pressed="false" data-v="editor">Editor</button>
     </div>
     <label class="acct"><select id="acct" aria-label="Account"></select></label>
   </header>
@@ -141,7 +142,7 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clea
 const S={accts:[],posts:[],acct:'all',filter:'upcoming',view:'overview',ov:{}};
 
 function show(v){S.view=v;document.querySelectorAll('#nav button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id===v));render()}
-$('#nav').onclick=e=>{const b=e.target.closest('button');if(b)show(b.dataset.v)};
+$('#nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.v==='editor'){location.href='/editor.html';return}show(b.dataset.v)};
 $('#filter').onclick=e=>{const b=e.target.closest('button');if(!b)return;S.filter=b.dataset.f;document.querySelectorAll('#filter button').forEach(x=>x.setAttribute('aria-pressed',x===b));renderSchedule()};
 $('#acct').onchange=()=>{S.acct=$('#acct').value;render()};
 
@@ -245,7 +246,7 @@ const q=new URLSearchParams(location.search);
 if(q.get('connected'))toast('Connected @'+q.get('connected'));
 if(q.get('error'))toast(q.get('error'));
 if(q.has('connected')||q.has('error'))history.replaceState(null,'','/');
-load().then(()=>{if(q.get('connected'))show('accounts')}).catch(e=>toast(e.message));
+load().then(()=>{if(q.get('connected'))show('accounts');const pf=localStorage.getItem('pulse_prefill');if(pf){localStorage.removeItem('pulse_prefill');show('schedule');$('#new').click();try{const j=JSON.parse(pf);$('#murl').value=j.url;$('#mtype').value=j.media_type;toast('Video attached')}catch(e){}}}).catch(e=>toast(e.message));
 setInterval(()=>{if(S.view==='schedule'&&!$('#dlg').open)load().catch(()=>{})},15000);
 </script>
 </body>
