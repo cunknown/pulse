@@ -37,3 +37,24 @@ create table if not exists follower_snapshots (
   media_count int,
   primary key (account_id, day)
 );
+
+-- Editor templates: shared by every browser and teammate
+create table if not exists templates (
+  id text primary key,
+  data jsonb not null default '{}'::jsonb,
+  video_url text,
+  video_path text,
+  video_type text,
+  added bigint,
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists editor_config (
+  id int primary key default 1,
+  data jsonb not null default '{}'::jsonb,
+  font_url text,
+  font_path text,
+  font_type text,
+  constraint editor_config_single_row check (id = 1)
+);
+
