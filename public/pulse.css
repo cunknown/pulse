@@ -1,0 +1,27 @@
+/* Pulse shared design system: dark, Apple-style, light-blue neon accents. Loaded by every page. */
+:root{color-scheme:dark;--bg:#000;--surface:rgba(255,255,255,.045);--line:rgba(255,255,255,.1);--text:#f5f5f7;--muted:#8e9099;--accent:#35c8ff;--accent-soft:rgba(53,200,255,.14);--good:#30d158;--bad:#ff375f;
+--pn:var(--surface);--bd:var(--line);--tx:var(--text);--mu:var(--muted);--ac:var(--accent);--ac2:#0a84ff;--ok:var(--good);--hot:var(--bad);--glow:0 0 20px rgba(53,200,255,.45);
+--m:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Helvetica Neue",Arial,sans-serif}
+body{background:#000 radial-gradient(70% 45% at 50% -10%,rgba(10,132,255,.3),transparent 70%) fixed;color:var(--text);font:15px/1.45 var(--m);-webkit-font-smoothing:antialiased}
+header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0;padding:12px max(20px,calc((100% - 1060px)/2));background:rgba(0,0,0,.6);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line)}
+.brand{font-weight:700;font-size:19px;letter-spacing:-.02em;text-decoration:none;background:linear-gradient(90deg,#fff,var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 10px rgba(53,200,255,.5))}
+.seg{display:inline-flex;background:rgba(255,255,255,.08);border-radius:10px;padding:3px;gap:2px}
+.seg button,.seg a{padding:6px 16px;border-radius:8px;font:500 13px var(--m);color:var(--muted);text-decoration:none;background:none;border:0;cursor:pointer;transition:.2s}
+.seg button:hover,.seg a:hover{color:var(--text)}
+.seg button[aria-pressed="true"],.seg a.on{background:rgba(53,200,255,.16);color:var(--accent);box-shadow:inset 0 0 0 1px rgba(53,200,255,.4),0 0 14px rgba(53,200,255,.25)}
+.acct select{appearance:none;background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:10px;padding:7px 14px;font-size:13px;color:var(--text)}
+select option{background:#14161c;color:#f5f5f7}
+h1{font-size:40px;line-height:1.1;font-weight:700;letter-spacing:-.03em;margin:0 0 6px;color:var(--text)}
+.sub{color:var(--muted);margin:0 0 28px;font-size:17px;flex:none}
+.wrap{max-width:1100px;margin:0 auto;padding:32px 20px 64px}
+main{max-width:1100px;margin:0 auto;padding:0 20px 64px}
+.panel,.p{background:var(--surface);border:1px solid var(--line);border-radius:22px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 14px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05)}
+.btn,button.pri{background:linear-gradient(180deg,#26b0ff,#0a6cff);color:#fff;border:0;border-color:transparent;box-shadow:var(--glow)}
+.btn:hover,button.pri:hover:not(:disabled){opacity:1;filter:brightness(1.12);background:linear-gradient(180deg,#26b0ff,#0a6cff);box-shadow:0 0 28px rgba(53,200,255,.7)}
+.btn.ghost{background:rgba(53,200,255,.14);color:var(--accent);box-shadow:none}
+.stat:hover{background:rgba(255,255,255,.04)}
+.picker,dialog textarea,dialog input:not([type=checkbox]),dialog select{background:rgba(255,255,255,.06)}
+dialog{background:#0c0f16;border:1px solid var(--line)}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+svg path[stroke]{filter:drop-shadow(0 0 6px rgba(53,200,255,.6))}
+@media(max-width:720px){.wrap{padding:24px 16px 48px}main{padding:0 16px 48px}header{padding:12px 16px}h1{font-size:32px}}

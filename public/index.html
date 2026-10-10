@@ -77,10 +77,10 @@ dialog textarea{resize:none}
 .hint{font-size:12px;color:var(--muted);margin:-6px 0 0}
 @media (max-width:720px){h1{font-size:32px}.stats{grid-template-columns:1fr 1fr}.stat:nth-child(2){border-right:0}.stat:nth-child(-n+2){border-bottom:1px solid var(--line)}.wrap{padding:16px 16px 48px}}
 </style>
+<link rel="stylesheet" href="/pulse.css">
 </head>
 <body>
-<div class="wrap">
-  <header>
+<header>
     <span class="brand">Pulse</span>
     <div class="seg" id="nav">
       <button aria-pressed="true" data-v="overview">Overview</button>
@@ -90,6 +90,8 @@ dialog textarea{resize:none}
     </div>
     <label class="acct"><select id="acct" aria-label="Account"></select></label>
   </header>
+<div class="wrap">
+  
 
   <section class="view on" id="overview"></section>
 
@@ -246,7 +248,7 @@ const q=new URLSearchParams(location.search);
 if(q.get('connected'))toast('Connected @'+q.get('connected'));
 if(q.get('error'))toast(q.get('error'));
 if(q.has('connected')||q.has('error'))history.replaceState(null,'','/');
-load().then(()=>{if(q.get('connected'))show('accounts');const pf=localStorage.getItem('pulse_prefill');if(pf){localStorage.removeItem('pulse_prefill');show('schedule');$('#new').click();try{const j=JSON.parse(pf);$('#murl').value=j.url;$('#mtype').value=j.media_type;toast('Video attached')}catch(e){}}}).catch(e=>toast(e.message));
+load().then(()=>{const h=location.hash.slice(1);if(['schedule','accounts'].includes(h))show(h);if(q.get('connected'))show('accounts');const pf=localStorage.getItem('pulse_prefill');if(pf){localStorage.removeItem('pulse_prefill');show('schedule');$('#new').click();try{const j=JSON.parse(pf);$('#murl').value=j.url;$('#mtype').value=j.media_type;toast('Video attached')}catch(e){}}}).catch(e=>toast(e.message));
 setInterval(()=>{if(S.view==='schedule'&&!$('#dlg').open)load().catch(()=>{})},15000);
 </script>
 </body>

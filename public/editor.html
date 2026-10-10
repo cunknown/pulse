@@ -1,73 +1,74 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>REELSWAP</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Figtree:wght@700;800&display=swap">
+<title>Pulse · Editor</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@700;800&display=swap">
 <style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark;--bg:#04060c;--pn:#070c18;--bd:#10356f;--ac:#00d9ff;--ac2:#2b7bff;--tx:#cde8ff;--mu:#5d7ea6;--ok:#2dffa0;--hot:#ff2d6f;--m:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark;--bg:#000;--pn:rgba(255,255,255,.045);--bd:rgba(255,255,255,.1);--ac:#35c8ff;--ac2:#0a84ff;--tx:#f5f5f7;--mu:#8e9099;--ok:#30d158;--hot:#ff375f;--glow:0 0 20px rgba(53,200,255,.45);--m:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Helvetica Neue",Arial,sans-serif}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:var(--bg) radial-gradient(60% 40% at 15% 0,#0b3a8a40,transparent) fixed;color:var(--tx);font:13px/1.5 var(--m)}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,#00d9ff07 0 1px,transparent 1px 4px);z-index:5}
-header{padding:16px 22px;border-bottom:1px solid var(--bd);display:flex;gap:16px;align-items:center;flex-wrap:wrap;background:#050a15cc}
-.logo{font-weight:800;font-size:20px;letter-spacing:.14em;color:var(--ac);text-shadow:0 0 14px var(--ac)}.logo i{animation:bl 1s steps(1) infinite;font-style:normal}
-@keyframes bl{50%{opacity:0}}
-.sub{color:var(--mu);font-size:11px;letter-spacing:.08em;flex:1}
-.led{font-size:11px;color:var(--ok);letter-spacing:.12em}.led:before{content:"";display:inline-block;width:7px;height:7px;background:var(--ok);border-radius:50%;margin-right:7px;box-shadow:0 0 10px var(--ok);animation:pl 2s infinite}
+body{margin:0;min-height:100vh;background:#000 radial-gradient(70% 45% at 50% -10%,rgba(10,132,255,.3),transparent 70%) fixed;color:var(--tx);font:14px/1.5 var(--m);-webkit-font-smoothing:antialiased}
+header{padding:14px 24px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;background:rgba(0,0,0,.55);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:5}
+.logo{font-weight:700;font-size:19px;letter-spacing:-.02em;background:linear-gradient(90deg,#fff,var(--ac));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 10px rgba(53,200,255,.5))}.logo i{display:none}
+.sub{color:var(--mu);font-size:12px;flex:1}
+.led{font-size:12px;color:var(--ac);padding:4px 12px;border:1px solid rgba(53,200,255,.35);border-radius:980px;box-shadow:0 0 14px rgba(53,200,255,.2)}.led:before{content:"";display:inline-block;width:7px;height:7px;background:var(--ac);border-radius:50%;margin-right:8px;box-shadow:0 0 10px var(--ac);animation:pl 2s infinite}
 @keyframes pl{50%{opacity:.35}}
-main{display:grid;grid-template-columns:minmax(260px,1fr) minmax(300px,1.1fr);gap:18px;padding:18px;max-width:1200px;margin:auto}
+main{display:grid;grid-template-columns:minmax(260px,1fr) minmax(300px,1.1fr);gap:20px;padding:22px;max-width:1200px;margin:auto}
 @media(max-width:800px){main{grid-template-columns:1fr}}
-.p{position:relative;background:linear-gradient(180deg,#0a1224,var(--pn));border:1px solid var(--bd);box-shadow:inset 0 0 30px #0077ff10,0 0 24px #0057ff12;padding:16px;margin-bottom:18px}
-.p:before,.p:after{content:"";position:absolute;width:14px;height:14px;border:2px solid var(--ac);filter:drop-shadow(0 0 4px var(--ac))}
-.p:before{top:-2px;left:-2px;border-right:0;border-bottom:0}.p:after{bottom:-2px;right:-2px;border-left:0;border-top:0}
-h2{margin:0 0 12px;font-size:11px;font-weight:600;letter-spacing:.2em;color:var(--ac);text-transform:uppercase}h2 b{color:var(--tx);font-weight:400}
-.drop{border:1px dashed var(--ac2);padding:18px;text-align:center;color:var(--mu);cursor:pointer;letter-spacing:.06em;transition:.15s}
-.drop:hover,.drop.on{border-style:solid;border-color:var(--ac);color:var(--ac);box-shadow:0 0 18px #00d9ff30,inset 0 0 18px #00d9ff10}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px;margin-top:12px;max-height:44vh;overflow:auto}
-.c{position:relative;aspect-ratio:9/16;border:1px solid var(--bd);cursor:pointer;background:#000;overflow:hidden;transition:.15s}
-.c:hover{border-color:var(--ac2)}.c.s{border-color:var(--ac);box-shadow:0 0 14px #00d9ff70}
-.c img{width:100%;height:100%;object-fit:cover;opacity:.85}.c span{position:absolute;bottom:0;left:0;right:0;font-size:9px;padding:2px 4px;background:#000c;color:var(--ac);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-label{display:block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mu);margin:14px 0 4px}
-textarea{width:100%;padding:9px;background:#050a14;border:1px solid var(--bd);color:var(--tx);font:inherit;outline:0;resize:vertical}textarea:focus{border-color:var(--ac);box-shadow:0 0 12px #00d9ff30}
-input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;width:100%;height:24px;margin:0;border:0;padding:0}
-input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--bd)}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:20px;margin-top:-9px;background:var(--ac);box-shadow:0 0 10px var(--ac)}
-input[type=range]::-moz-range-track{height:2px;background:var(--bd)}
-input[type=range]::-moz-range-thumb{width:12px;height:20px;border:0;border-radius:0;background:var(--ac);box-shadow:0 0 10px var(--ac)}
-button{background:transparent;color:var(--ac);border:1px solid var(--ac);font:600 12px var(--m);letter-spacing:.1em;text-transform:uppercase;padding:10px 14px;cursor:pointer;box-shadow:0 0 10px #00d9ff30,inset 0 0 10px #00d9ff10;transition:.15s}
-button:hover:not(:disabled){background:var(--ac);color:#00131a;box-shadow:0 0 22px #00d9ffa0}
-button.pri{background:#00d9ff22}button.sm{padding:5px 8px;font-size:11px}button.dng{color:var(--hot);border-color:#ff2d6f80;box-shadow:none}button.dng:hover:not(:disabled){background:var(--hot);color:#fff;box-shadow:0 0 18px #ff2d6f90}
+.p{position:relative;background:var(--pn);border:1px solid var(--bd);border-radius:22px;padding:20px;margin-bottom:20px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 14px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05)}
+h2{margin:0 0 14px;font-size:16px;font-weight:600;letter-spacing:-.01em;color:var(--tx)}h2 b{color:var(--ac);font-weight:500;margin-left:4px}
+.drop{border:1.5px dashed rgba(53,200,255,.4);border-radius:16px;padding:24px;text-align:center;color:var(--mu);cursor:pointer;transition:.2s}
+.drop:hover,.drop.on{border-style:solid;border-color:var(--ac);color:var(--ac);background:rgba(53,200,255,.06);box-shadow:var(--glow),inset 0 0 24px rgba(53,200,255,.08)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:10px;margin-top:14px;max-height:44vh;overflow:auto}
+.c{position:relative;aspect-ratio:9/16;border:1px solid var(--bd);border-radius:12px;cursor:pointer;background:#000;overflow:hidden;transition:.2s}
+.c:hover{border-color:rgba(53,200,255,.6)}.c.s{border-color:var(--ac);box-shadow:var(--glow)}
+.c img{width:100%;height:100%;object-fit:cover}.c span{position:absolute;bottom:0;left:0;right:0;font-size:10px;padding:14px 6px 4px;background:linear-gradient(transparent,rgba(0,0,0,.85));color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+label{display:block;font-size:12px;font-weight:500;color:var(--mu);margin:16px 0 6px}
+textarea{width:100%;padding:11px 13px;background:rgba(255,255,255,.06);border:1px solid var(--bd);border-radius:12px;color:var(--tx);font:inherit;outline:0;resize:vertical;transition:.2s}textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(53,200,255,.18),var(--glow)}
+input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;width:100%;height:26px;margin:0;border:0;padding:0}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:rgba(255,255,255,.16)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;margin-top:-7px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(53,200,255,.55),0 2px 8px rgba(0,0,0,.5)}
+input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:rgba(255,255,255,.16)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border:0;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(53,200,255,.55),0 2px 8px rgba(0,0,0,.5)}
+button{background:rgba(255,255,255,.08);color:var(--tx);border:1px solid var(--bd);border-radius:980px;font:500 13px var(--m);padding:9px 16px;cursor:pointer;transition:.2s}
+button:hover:not(:disabled){background:rgba(255,255,255,.15);border-color:rgba(53,200,255,.5)}
+button.pri{background:linear-gradient(180deg,#4fd2ff,var(--ac2));border-color:transparent;color:#fff;box-shadow:var(--glow)}
+button.pri:hover:not(:disabled){background:linear-gradient(180deg,#6adbff,#2b95ff);box-shadow:0 0 28px rgba(53,200,255,.7)}
+button.sm{padding:6px 12px;font-size:12px}button.dng{color:var(--hot);border-color:rgba(255,55,95,.4)}button.dng:hover:not(:disabled){background:var(--hot);color:#fff;border-color:var(--hot);box-shadow:0 0 18px rgba(255,55,95,.5)}
 button:disabled{opacity:.45;cursor:wait}
 .r{display:flex;gap:8px;align-items:center}.r>*{flex:1}
-.pv{position:relative;container-type:inline-size;max-width:230px;margin:auto;background:#000;border:1px solid var(--ac);box-shadow:0 0 22px #00d9ff30}
+.pv{position:relative;container-type:inline-size;max-width:230px;margin:auto;background:#000;border:1px solid rgba(53,200,255,.5);border-radius:22px;overflow:hidden;box-shadow:0 0 28px rgba(53,200,255,.25)}
 .pv video{width:100%;display:block;aspect-ratio:9/16;object-fit:cover}
 .tx{position:absolute;transform:translate(-50%,-50%) scaleX(var(--sx,1));text-align:center;color:#fff;font:700 calc(var(--s)*1cqw)/1.2 "IGCustom",Figtree,-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-text-stroke:calc(var(--s)*.06cqw) #000;paint-order:stroke fill;text-shadow:0 calc(var(--s)*.03cqw) calc(var(--s)*.1cqw) #0009;pointer-events:none;white-space:pre-wrap}
-.sc{position:relative;margin:14px 0 4px}.sc i{position:absolute;top:2px;bottom:2px;width:2px;background:var(--hot);box-shadow:0 0 8px var(--hot);pointer-events:none;left:0}
-.nd{display:flex;gap:4px;margin:8px 0}.nd button{flex:1;padding:6px 2px;font-size:11px;letter-spacing:0}
-.mu{color:var(--mu);font-size:11px}.hl{color:var(--hot)}
-.bar{height:6px;background:#0a1a38;margin-top:12px}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ac2),var(--ac));box-shadow:0 0 12px var(--ac)}
-.out{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--bd)}.out video{width:46px;aspect-ratio:9/16;object-fit:cover;border:1px solid var(--bd)}.out a{color:var(--ok);text-decoration:none;word-break:break-all}.out a:hover{text-shadow:0 0 10px var(--ok)}
-.out{cursor:pointer;padding:8px;border-left:2px solid transparent;transition:.15s}.out:hover{background:#00d9ff0d}.out.s{border-left-color:var(--ac);background:#00d9ff14}.op{margin-bottom:14px}.op .pv{cursor:pointer}
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:var(--bd)}
-</style></head><body>
-<header><a href="/" style="color:var(--mu);text-decoration:none;font-size:12px;letter-spacing:.1em">&larr; PULSE</a><div class="logo">&gt; REELSWAP<i>_</i></div><div class="sub">AUTO-SPLICE // MODEL → TEMPLATE // ORIGINAL AUDIO LOCKED</div><div class="led">SYSTEM ONLINE</div></header>
+.sc{position:relative;margin:16px 0 4px}.sc i{position:absolute;top:2px;bottom:2px;width:2px;border-radius:1px;background:var(--hot);box-shadow:0 0 8px var(--hot);pointer-events:none;left:0}
+.nd{display:flex;gap:6px;margin:10px 0}.nd button{flex:1;padding:7px 2px;font-size:11px}
+.mu{color:var(--mu);font-size:12px}.hl{color:var(--hot)}
+.bar{height:6px;border-radius:3px;overflow:hidden;background:rgba(255,255,255,.1);margin-top:14px}.bar i{display:block;height:100%;width:0;border-radius:3px;background:linear-gradient(90deg,var(--ac2),var(--ac));box-shadow:0 0 14px var(--ac)}
+.out{display:flex;gap:10px;align-items:center;padding:10px;border-radius:14px;border-top:1px solid transparent;cursor:pointer;transition:.2s}.out video{width:46px;aspect-ratio:9/16;object-fit:cover;border-radius:8px;border:1px solid var(--bd)}.out a{color:var(--ok);text-decoration:none;word-break:break-all}
+.out:hover{background:rgba(255,255,255,.05)}.out.s{background:rgba(53,200,255,.1);box-shadow:inset 0 0 0 1px rgba(53,200,255,.45)}.op{margin-bottom:14px}.op .pv{cursor:pointer}
+::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:4px}
+</style><link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>">
+<link rel="stylesheet" href="/pulse.css">
+</head><body>
+<header><a class="brand" href="/">Pulse</a><div class="seg" id="nav"><a href="/#overview">Overview</a><a href="/#schedule">Schedule</a><a href="/#accounts">Accounts</a><a href="/editor.html" class="on">Editor</a></div><span style="min-width:140px"></span></header>
+<div class="wrap" style="padding-bottom:0"><h1>Editor</h1><p class="sub">Splice your model into a template. The original audio stays untouched.</p></div>
 <main>
 <section>
- <div class="p"><h2>// 01 Templates <b>[<span id="n">0</span>]</b></h2>
-  <div class="drop" id="td">[ DROP ORIGINAL VERTICALS ]<input id="tf" type="file" accept="video/*" multiple hidden></div>
+ <div class="p"><h2>Templates <b><span id="n">0</span></b></h2>
+  <div class="drop" id="td">Drop original verticals<input id="tf" type="file" accept="video/*" multiple hidden></div>
   <button class="sm" id="rdA" hidden style="margin-top:10px;width:100%">⚡ Read caption text from all templates</button>
   <div class="grid" id="grid"></div></div>
- <div class="p"><h2>// 03 Target feed</h2>
-  <div class="drop" id="md">[ DROP MODEL VIDEO ]<input id="mf" type="file" accept="video/*" hidden></div>
-  <div class="mu" id="mn" style="margin-top:8px">&gt; no feed loaded</div>
+ <div class="p"><h2>Target feed</h2>
+  <div class="drop" id="md">Drop model video<input id="mf" type="file" accept="video/*" hidden></div>
+  <div class="mu" id="mn" style="margin-top:8px">no feed loaded</div>
   <div class="r" style="margin-top:12px"><button id="r1" class="pri">▶ Run selected</button><button id="rA">▶▶ Run all</button></div>
-  <div class="bar"><i id="pb"></i></div><div class="mu" id="st" style="margin-top:8px">&gt; idle. keep this tab visible while rendering.</div></div>
- <div class="p"><h2>// Output</h2>
+  <div class="bar"><i id="pb"></i></div><div class="mu" id="st" style="margin-top:8px">idle. keep this tab visible while rendering.</div></div>
+ <div class="p"><h2>Output</h2>
   <div id="opl" hidden class="op"><div class="pv" id="opw"><video id="opv" playsinline></video></div>
    <input id="oscr" type="range" min="0" max="1" step="0.01" value="0" style="margin-top:10px">
    <div class="r"><span class="mu" id="otm">0.0 / 0.0s</span><button class="sm" id="oplay" style="flex:0 0 44px">▶</button><button class="sm pri" id="osave" style="flex:0 0 auto">⬇ Save this</button><button class="sm" id="osend" style="flex:0 0 auto">→ Pulse</button></div></div>
-  <div id="res" class="mu">&gt; nothing yet</div><button id="dl" style="margin-top:10px;display:none">⬇ Save all</button></div>
+  <div id="res" class="mu">nothing yet</div><button id="dl" style="margin-top:10px;display:none">⬇ Save all</button></div>
 </section>
-<section class="p" id="ed"><h2>// 02 Config</h2><div class="mu" id="none">&gt; select a template.</div>
+<section class="p" id="ed"><h2>Config</h2><div class="mu" id="none">select a template.</div>
  <div id="form" hidden>
   <div class="pv"><video id="pvv" playsinline></video><div class="tx" id="ptx"></div></div>
   <div class="sc"><input id="scr" type="range" min="0" max="1" step="0.001" value="0"><i id="mk"></i></div>
@@ -160,22 +161,22 @@ function fit(t){const g=t.geo;if(!g)return;const S=540,Wd=(g.right-g.left+1)/g.W
  t.lh=+lh.toFixed(3);t.sx=+sx.toFixed(3);t.brk=lines.join('\n');
  t.x=+(k3?cxD-(k3.cx-S/2)/S*100:cxD).toFixed(2);t.y0=+(k3?cyD-(k3.cy-480)/960*100:cyD).toFixed(2);t.y=+clp(t.y0+(t.yo||0),2,98).toFixed(1)}
 async function analyze(t){const v=mkVid(t.blob);await ready(v);t.cut=await detectCut(v);t.geo=await scanText(v,t.cut);t.tEnd=t.geo?Math.min(t.geo.tEnd,t.cut):t.cut;t.v3=true;fit(t)}
-async function addFiles(fs){await fontReady;fs=fs.filter(f=>f.type.startsWith('video'));let i=0;for(const f of fs){i++;$('#st').textContent=`> analysing ${i}/${fs.length}: ${f.name}`;
+async function addFiles(fs){await fontReady;fs=fs.filter(f=>f.type.startsWith('video'));let i=0;for(const f of fs){i++;$('#st').textContent=`analysing ${i}/${fs.length}: ${f.name}`;
  try{const v=mkVid(f);await ready(v);await seek(v,Math.min(.3,v.duration/2));const c=document.createElement('canvas');c.width=90;c.height=160;cover(c.getContext('2d'),v,90,160);
  const t={id:crypto.randomUUID(),added:Date.now()+i,name:f.name.replace(/\.[^.]+$/,''),blob:f,thumb:c.toDataURL('image/jpeg',.7),dur:v.duration,cut:3,text:'',brk:'',size:7,y:70,x:50,wrap:88,geo:null};
- await analyze(t);T.push(t);await store('put',t);list();if(!sel)pick(t)}catch(e){$('#st').textContent='> failed: '+f.name}}
- const added=T.filter(t=>!t.lines&&fs.some(f=>f.name.replace(/\.[^.]+$/,'')==t.name));$('#st').textContent='> templates ready. cut + text position auto-detected.';if(smp&&added.length)readMany(added,$('#rdA'))}
+ await analyze(t);T.push(t);await store('put',t);list();if(!sel)pick(t)}catch(e){$('#st').textContent='failed: '+f.name}}
+ const added=T.filter(t=>!t.lines&&fs.some(f=>f.name.replace(/\.[^.]+$/,'')==t.name));$('#st').textContent='templates ready. cut + text position auto-detected.';if(smp&&added.length)readMany(added,$('#rdA'))}
 /* editor */
 function prev(){if(!sel)return;const p=$('#ptx');p.textContent=sel.brk||sel.text;p.style.setProperty('--s',sel.size);p.style.top=sel.y+'%';p.style.left=sel.x+'%';p.style.width=(sel.wrap/(sel.sx||1))+'%';p.style.setProperty('--sx',sel.sx||1);p.style.lineHeight=sel.lh||1.2;p.style.display=PV.currentTime<(sel.tEnd??sel.cut)-.0005?'block':'none';$('#mk').style.left=(sel.cut/(PV.duration||sel.dur)*100)+'%';$('#ct').textContent=sel.cut.toFixed(3)+'s'}
 function sync(){if(!sel)return;$('#scr').max=PV.duration||sel.dur;$('#scr').value=PV.currentTime;$('#tm').textContent=PV.currentTime.toFixed(3)+'s';prev()}
 function sliders(){$('#sz').value=sel.size;$('#py').value=sel.y}
-function pick(t){sel=t;list();$('#none').hidden=true;$('#form').hidden=false;PV.src=URL.createObjectURL(t.blob);$('#txt').value=t.text;sliders();$('#dm').textContent=t.geo?'> text position auto-detected. type your text and it fits itself.':'> no static text found in this template — set size + position by hand.';prev();if(!t.v3)rescan(t)}
-async function rescan(t){t.v3=true;$('#dm').textContent='> upgrading text detection for this template…';try{const v=mkVid(t.blob);await ready(v);t.geo=await scanText(v,t.cut);t.tEnd=t.geo?Math.min(t.geo.tEnd,t.cut):t.cut;fit(t);await store('put',t)}catch(e){}if(sel===t){sliders();prev();$('#dm').textContent=t.geo?'> text position detected.':'> no static text found — set size + position by hand.'}}
+function pick(t){sel=t;list();$('#none').hidden=true;$('#form').hidden=false;PV.src=URL.createObjectURL(t.blob);$('#txt').value=t.text;sliders();$('#dm').textContent=t.geo?'text position auto-detected. type your text and it fits itself.':'no static text found in this template — set size + position by hand.';prev();if(!t.v3)rescan(t)}
+async function rescan(t){t.v3=true;$('#dm').textContent='upgrading text detection for this template…';try{const v=mkVid(t.blob);await ready(v);t.geo=await scanText(v,t.cut);t.tEnd=t.geo?Math.min(t.geo.tEnd,t.cut):t.cut;fit(t);await store('put',t)}catch(e){}if(sel===t){sliders();prev();$('#dm').textContent=t.geo?'text position detected.':'no static text found — set size + position by hand.'}}
 PV.ontimeupdate=PV.onseeked=PV.onloadedmetadata=sync;
 $('#scr').oninput=()=>{PV.pause();PV.currentTime=+$('#scr').value};
 $('#play').onclick=()=>PV.paused?PV.play():PV.pause();
 document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{PV.pause();PV.currentTime=Math.min(Math.max(0,PV.currentTime+ +b.dataset.d),PV.duration)});
-$('#cur').onclick=async()=>{sel.cut=Math.floor(PV.currentTime*1000+1e-6)/1000;prev();$('#dm').textContent='> re-scanning text at new cut…';const v=mkVid(sel.blob);await ready(v);sel.geo=await scanText(v,sel.cut);sel.tEnd=sel.cut;fit(sel);sliders();prev();persist();$('#dm').textContent='> cut saved.'};
+$('#cur').onclick=async()=>{sel.cut=Math.floor(PV.currentTime*1000+1e-6)/1000;prev();$('#dm').textContent='re-scanning text at new cut…';const v=mkVid(sel.blob);await ready(v);sel.geo=await scanText(v,sel.cut);sel.tEnd=sel.cut;fit(sel);sliders();prev();persist();$('#dm').textContent='cut saved.'};
 let smp=null,rctl=null;(async()=>{try{smp=await claude.use('sample')}catch(e){}})();
 async function readText(t,sig){const v=mkVid(t.blob);await ready(v);const te=t.tEnd??t.cut;await seek(v,Math.max(.15,Math.min(te-.1,te/2+.2)));
  const g=t.geo,vw=v.videoWidth,vh=v.videoHeight;let sx=0,sy=0,sw=vw,sh=vh;
@@ -187,25 +188,25 @@ async function readText(t,sig){const v=mkVid(t.blob);await ready(v);const te=t.t
  if(!lines.length||/^none\.?$/i.test(lines.join(' ').trim()))return false;
  t.lines=lines;t.text=lines.join('\n');fit(t);await store('put',t);if(sel===t){$('#txt').value=t.text;sliders();prev()}return true}
 const errMsg=e=>({not_granted:'permission declined',rate_limited:'rate limited, try again in a bit',images_unavailable:'image reading unavailable in this view',sampling_disabled:'Claude unavailable on this account'}[e&&e.code]||'read failed ('+(e&&(e.code||e.message)||e)+')');
-async function readMany(ls,btn){if(!smp)return $('#st').textContent='> text reading unavailable in this view.';
+async function readMany(ls,btn){if(!smp)return $('#st').textContent='text reading unavailable in this view.';
  if(rctl){rctl.abort();return}
  rctl=new AbortController();const ob=btn.textContent;btn.textContent='■ Stop';let n=0,none=0;
- for(let i=0;i<ls.length;i++){if(rctl.signal.aborted)break;$('#st').textContent=`> reading text ${i+1}/${ls.length}: ${ls[i].name}`;
-  try{(await readText(ls[i],rctl.signal))?n++:none++}catch(e){if(e&&e.code=='cancelled')break;if(e&&(e.code=='refused'||e.code=='empty_completion')){none++;continue}$('#st').textContent='> '+errMsg(e);rctl=null;btn.textContent=ob;return}}
- rctl=null;btn.textContent=ob;$('#st').textContent=`> read text from ${n} template(s)`+(none?`, ${none} had no caption`:'')+'.'}
+ for(let i=0;i<ls.length;i++){if(rctl.signal.aborted)break;$('#st').textContent=`reading text ${i+1}/${ls.length}: ${ls[i].name}`;
+  try{(await readText(ls[i],rctl.signal))?n++:none++}catch(e){if(e&&e.code=='cancelled')break;if(e&&(e.code=='refused'||e.code=='empty_completion')){none++;continue}$('#st').textContent=''+errMsg(e);rctl=null;btn.textContent=ob;return}}
+ rctl=null;btn.textContent=ob;$('#st').textContent=`read text from ${n} template(s)`+(none?`, ${none} had no caption`:'')+'.'}
 $('#rd').onclick=()=>sel&&readMany([sel],$('#rd'));
 $('#rdA').onclick=()=>readMany(T.filter(t=>!t.lines),$('#rdA'));
 async function loadFont(b,n){const ff=new FontFace('IGCustom',`url(${URL.createObjectURL(b)})`);await ff.load();document.fonts.add(ff);cfg.font=n;cfg.blob=b}
 $('#fb').onclick=()=>$('#ff').click();
-$('#ff').onchange=async()=>{const f=$('#ff').files[0];if(!f)return;try{await loadFont(f,f.name.replace(/\.[^.]+$/,''));saveCfg();T.forEach(t=>t.geo&&fit(t));if(sel){sliders();prev();persist()}$('#dm').textContent='> font loaded: '+cfg.font}catch(e){$('#dm').textContent='> could not load that font file.'}};
+$('#ff').onchange=async()=>{const f=$('#ff').files[0];if(!f)return;try{await loadFont(f,f.name.replace(/\.[^.]+$/,''));saveCfg();T.forEach(t=>t.geo&&fit(t));if(sel){sliders();prev();persist()}$('#dm').textContent='font loaded: '+cfg.font}catch(e){$('#dm').textContent='could not load that font file.'}};
 $('#goc').onclick=()=>{PV.pause();PV.currentTime=sel.cut};
 $('#txt').oninput=()=>{sel.text=$('#txt').value;fit(sel);sliders();prev();persist()};
 $('#sz').oninput=()=>{const v=+$('#sz').value;if(sel.raw&&sel.geo){cfg.cal=Math.min(1.4,Math.max(.6,v/sel.raw));saveCfg();fit(sel);sliders()}else sel.size=v;prev();persist()};
 $('#py').oninput=()=>{const v=+$('#py').value;sel.yo=v-(sel.y0??v);sel.y=v;prev();persist()};
-$('#rm').onclick=async()=>{const b=$('#rm');if(!b.dataset.arm){b.dataset.arm=1;b.textContent='⚠ Click again to confirm';setTimeout(()=>{delete b.dataset.arm;b.textContent='✕ Delete template'},3000);return}delete b.dataset.arm;b.textContent='✕ Delete template';const dead=sel;await store('del',dead.id);T=T.filter(t=>t!==dead);sel=null;PV.pause();PV.removeAttribute('src');PV.load();$('#form').hidden=true;$('#none').hidden=false;list();$('#st').textContent='> template deleted.'};
+$('#rm').onclick=async()=>{const b=$('#rm');if(!b.dataset.arm){b.dataset.arm=1;b.textContent='⚠ Click again to confirm';setTimeout(()=>{delete b.dataset.arm;b.textContent='✕ Delete template'},3000);return}delete b.dataset.arm;b.textContent='✕ Delete template';const dead=sel;await store('del',dead.id);T=T.filter(t=>t!==dead);sel=null;PV.pause();PV.removeAttribute('src');PV.load();$('#form').hidden=true;$('#none').hidden=false;list();$('#st').textContent='template deleted.'};
 function zone(z,inp,fn){z.onclick=()=>inp.click();inp.onchange=()=>{fn([...inp.files]);inp.value=''};z.ondragover=e=>{e.preventDefault();z.classList.add('on')};z.ondragleave=()=>z.classList.remove('on');z.ondrop=e=>{e.preventDefault();z.classList.remove('on');fn([...e.dataTransfer.files])}}
 zone($('#td'),$('#tf'),addFiles);
-zone($('#md'),$('#mf'),fs=>{const f=fs.find(f=>f.type.startsWith('video'));if(f){model=f;$('#mn').textContent='> feed loaded: '+f.name+' (audio stripped)'}});
+zone($('#md'),$('#mf'),fs=>{const f=fs.find(f=>f.type.startsWith('video'));if(f){model=f;$('#mn').textContent='feed loaded: '+f.name+' (audio stripped)'}});
 /* renderer: model video + text until the cut, then the original. Model audio is dropped; the original's audio is decoded separately and plays unbroken from 0 to end. */
 async function render(t,mb,prog){await fontReady;
  const ov=mkVid(t.blob),mv=mkVid(mb);await Promise.all([ready(ov),ready(mv)]);
@@ -224,13 +225,13 @@ async function render(t,mb,prog){await fontReady;
    if(tt<t.cut){cover(x,mv,W,H);if(tt<(t.tEnd??t.cut))drawText(x,t,W,H)}else{if(!mv.paused)mv.pause();if(Math.abs(ov.currentTime-tt)>.08)ov.currentTime=tt;cover(x,ov,W,H)}
    prog(Math.min(1,tt/dur));if(tt>=dur){done=true;setTimeout(()=>rec.stop(),200);return}requestAnimationFrame(loop)};
   rec.start();setTimeout(()=>{if(buf){const sn=ac.createBufferSource();sn.buffer=buf;sn.connect(d);sn.start()}t0=ac.currentTime;ov.play();mv.play();loop()},150)})}
-async function run(ls){if(!model)return $('#st').textContent='> drop your model video first.';if(!ls.length)return $('#st').textContent='> add a template first.';
+async function run(ls){if(!model)return $('#st').textContent='drop your model video first.';if(!ls.length)return $('#st').textContent='add a template first.';
  $('#r1').disabled=$('#rA').disabled=true;let na=0;
- for(let i=0;i<ls.length;i++){const t=ls[i];$('#st').textContent=`> rendering ${i+1}/${ls.length}: ${t.name}`;
-  try{const o=await render(t,model,p=>$('#pb').style.width=((i+p)/ls.length*100)+'%');if(o.noAudio)na++;R.push({name:t.name+'_model.'+o.ext,ext:o.ext,dur:o.dur,blob:o.blob,url:URL.createObjectURL(o.blob)});showRes()}catch(e){$('#st').textContent='> error on '+t.name+': '+e.message}}
- $('#st').textContent='> done.'+(na?` warning: ${na} template(s) had no readable audio track.`:'');$('#pb').style.width='100%';$('#r1').disabled=$('#rA').disabled=false}
+ for(let i=0;i<ls.length;i++){const t=ls[i];$('#st').textContent=`rendering ${i+1}/${ls.length}: ${t.name}`;
+  try{const o=await render(t,model,p=>$('#pb').style.width=((i+p)/ls.length*100)+'%');if(o.noAudio)na++;R.push({name:t.name+'_model.'+o.ext,ext:o.ext,dur:o.dur,blob:o.blob,url:URL.createObjectURL(o.blob)});showRes()}catch(e){$('#st').textContent='error on '+t.name+': '+e.message}}
+ $('#st').textContent='done.'+(na?` warning: ${na} template(s) had no readable audio track.`:'');$('#pb').style.width='100%';$('#r1').disabled=$('#rA').disabled=false}
 let dlc=null;(async()=>{try{dlc=await claude.use('downloads')}catch(e){}})();
-async function saveFile(r){try{if(dlc){await dlc.save({filename:r.name,data:r.blob})}else{const a=document.createElement('a');a.href=r.url;a.download=r.name;a.click()}return true}catch(e){$('#st').textContent=e&&e.code=='declined'?'> save cancelled.':'> save failed: '+(e&&e.message||e);return false}}
+async function saveFile(r){try{if(dlc){await dlc.save({filename:r.name,data:r.blob})}else{const a=document.createElement('a');a.href=r.url;a.download=r.name;a.click()}return true}catch(e){$('#st').textContent=e&&e.code=='declined'?'save cancelled.':'save failed: '+(e&&e.message||e);return false}}
 let cur=null;const OV=$('#opv');
 function openR(r){cur=r;OV.src=r.url;$('#opl').hidden=false;[...$('#res').children].forEach((d,i)=>d.classList.toggle('s',R[i]===r));$('#oscr').max=r.dur;$('#oscr').value=0;$('#otm').textContent=`0.0 / ${r.dur.toFixed(1)}s`}
 function showRes(){const L=$('#res');L.innerHTML='';R.forEach(r=>{const d=document.createElement('div');d.className='out'+(r===cur?' s':'');d.innerHTML=`<div style="flex:1;min-width:0"><div style="word-break:break-all">${r.name}</div><div class="mu">1080×1920 · ${r.ext.toUpperCase()}${r.ext=='webm'?' · Instagram wants MP4, render in Chrome':''}</div></div>`;d.onclick=()=>openR(r);const b=document.createElement('button');b.className='sm';b.style.flex='0 0 auto';b.textContent='⬇ Save';b.onclick=e=>{e.stopPropagation();saveFile(r)};d.append(b);if(r.ext==='mp4'){const s=document.createElement('button');s.className='sm pri';s.style.flex='0 0 auto';s.textContent='→ Pulse';s.onclick=e=>{e.stopPropagation();sendToPulse(r,s)};d.append(s)}L.append(d)});$('#dl').style.display=R.length>1?'':'none';if(!cur&&R.length)openR(R[0])}
@@ -241,16 +242,16 @@ $('#oscr').oninput=()=>{OV.pause();OV.currentTime=+$('#oscr').value};
 $('#osave').onclick=()=>cur&&saveFile(cur);
 $('#osend').onclick=()=>cur&&sendToPulse(cur,$('#osend'));
 async function sendToPulse(r,btn){
- if(r.ext!=='mp4'){$('#st').textContent='> Instagram needs MP4. Render in Chrome to get an MP4 file.';return}
+ if(r.ext!=='mp4'){$('#st').textContent='Instagram needs MP4. Render in Chrome to get an MP4 file.';return}
  const old=btn.textContent;btn.disabled=true;btn.textContent='Uploading…';
  try{const fd=new FormData();fd.append('file',new File([r.blob],r.name,{type:'video/mp4'}));
   const res=await fetch('/api/upload',{method:'POST',body:fd});const j=await res.json().catch(()=>({}));
   if(!res.ok)throw new Error(j.error||'Upload failed');
   localStorage.setItem('pulse_prefill',JSON.stringify({url:j.url,media_type:j.media_type}));
-  $('#st').innerHTML='> uploaded. <a href="/" target="_blank" style="color:var(--ok)">Open Pulse to schedule it</a>';
- }catch(e){$('#st').textContent='> send failed: '+e.message}
+  $('#st').innerHTML='uploaded. <a href="/" target="_blank" style="color:var(--ok)">Open Pulse to schedule it</a>';
+ }catch(e){$('#st').textContent='send failed: '+e.message}
  btn.disabled=false;btn.textContent=old}
-$('#r1').onclick=()=>sel?run([sel]):($('#st').textContent='> select a template first.');$('#rA').onclick=()=>run([...T]);
+$('#r1').onclick=()=>sel?run([sel]):($('#st').textContent='select a template first.');$('#rA').onclick=()=>run([...T]);
 $('#dl').onclick=async()=>{for(const r of R){if(!await saveFile(r))break}};
 const fontReady=document.fonts?document.fonts.load('700 100px Figtree').then(()=>document.fonts.ready).catch(()=>{}):Promise.resolve();
 init().then(()=>fontReady).then(()=>{T.forEach(t=>t.geo&&fit(t));if(sel){sliders();prev()}});
