@@ -217,14 +217,14 @@ async function render(t,mb,prog){await fontReady;
  const st=c.captureStream(30);d.stream.getAudioTracks().forEach(a=>st.addTrack(a));
  const mime=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm'].find(m=>MediaRecorder.isTypeSupported(m));
  const rec=new MediaRecorder(st,{mimeType:mime,videoBitsPerSecond:10e6,audioBitsPerSecond:192e3}),ch=[];rec.ondataavailable=e=>e.data.size&&ch.push(e.data);
- mv.onended=()=>{mv.currentTime=0;mv.play()};await seek(mv,0);await seek(ov,0);cover(x,mv,W,H);drawText(x,t,W,H);
+ mv.onended=()=>{mv.currentTime=0;mv.play()};await seek(mv,0);await seek(ov,buf?t.cut+.003:0);cover(x,mv,W,H);drawText(x,t,W,H);
  return new Promise(res=>{
   rec.onstop=()=>{ac.close();res({blob:new Blob(ch,{type:mime.split(';')[0]}),ext:mime.includes('mp4')?'mp4':'webm',noAudio:!buf,dur:ov.duration})};
-  const dur=ov.duration;let done=false,t0=0;
+  const dur=ov.duration;let done=false,t0=0,oGo=false;
   const loop=()=>{if(done)return;const tt=ac.currentTime-t0;
-   if(tt<t.cut){cover(x,mv,W,H);if(tt<(t.tEnd??t.cut))drawText(x,t,W,H)}else{if(!mv.paused)mv.pause();if(Math.abs(ov.currentTime-tt)>.08)ov.currentTime=tt;cover(x,ov,W,H)}
+   if(tt<t.cut){cover(x,mv,W,H);if(tt<(t.tEnd??t.cut))drawText(x,t,W,H)}else{if(!mv.paused)mv.pause();if(!buf){if(Math.abs(ov.currentTime-tt)>.08)ov.currentTime=tt;cover(x,ov,W,H)}else{if(!oGo){oGo=true;ov.play()}else if(!ov.seeking&&Math.abs(ov.currentTime-tt)>.08)ov.currentTime=tt;if(!ov.seeking&&ov.readyState>=2&&ov.currentTime>=t.cut)cover(x,ov,W,H)}}
    prog(Math.min(1,tt/dur));if(tt>=dur){done=true;setTimeout(()=>rec.stop(),200);return}requestAnimationFrame(loop)};
-  rec.start();setTimeout(()=>{if(buf){const sn=ac.createBufferSource();sn.buffer=buf;sn.connect(d);sn.start()}t0=ac.currentTime;ov.play();mv.play();loop()},150)})}
+  rec.start();setTimeout(()=>{if(buf){const sn=ac.createBufferSource();sn.buffer=buf;sn.connect(d);sn.start()}t0=ac.currentTime;if(!buf)ov.play();mv.play();loop()},150)})}
 async function run(ls){if(!model)return $('#st').textContent='drop your model video first.';if(!ls.length)return $('#st').textContent='add a template first.';
  $('#r1').disabled=$('#rA').disabled=true;let na=0;
  for(let i=0;i<ls.length;i++){const t=ls[i];$('#st').textContent=`rendering ${i+1}/${ls.length}: ${t.name}`;
