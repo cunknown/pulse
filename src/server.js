@@ -24,45 +24,8 @@ app.use(express.json());
 
 // Callbacks Meta requires in app settings. Public on purpose.
 app.post('/auth/deauthorize', (req, res) => res.sendStatus(200));
-app.post('/auth/delete-data', (req, res) => res.json({ url: `${process.env.PUBLIC_URL}/data-deletion`, confirmation_code: 'ok' }));
+app.post('/auth/delete-data', (req, res) => res.json({ url: process.env.PUBLIC_URL, confirmation_code: 'ok' }));
 app.get('/api/health', (req, res) => res.json({ ok: true }));
-
-// Public legal pages (Meta requires these to be reachable without the password).
-const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const legal = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title} · Pulse</title>
-<style>body{margin:0;background:#06080a;color:#ece9e4;font:16px/1.65 -apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}main{max-width:720px;margin:0 auto;padding:48px 20px 80px}h1{font-size:28px;letter-spacing:.08em;text-transform:uppercase;font-weight:500;margin:0 0 6px}h2{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#8e979a;font-weight:600;margin:34px 0 8px}p,li{color:#cfd3d1}a{color:#bff4f0}.d{color:#8e979a;font-size:14px}</style></head><body><main><h1>${title}</h1><p class="d">Last updated: 14 October 2026</p>${body}</main></body></html>`;
-const contact = () => process.env.CONTACT_EMAIL
-  ? `<p>Email: <a href="mailto:${esc(process.env.CONTACT_EMAIL)}">${esc(process.env.CONTACT_EMAIL)}</a></p>`
-  : '<p>Contact details are available from the operator of this service.</p>';
-
-app.get('/privacy', (req, res) => res.type('html').send(legal('Privacy Policy', `
-<p>Pulse is a tool for scheduling Instagram posts and viewing account analytics. This page explains what data Pulse handles when you connect an Instagram account.</p>
-<h2>What we collect</h2>
-<ul><li>Instagram account details you authorise: account ID, username, profile picture, account type, follower and media counts.</li>
-<li>Information about your posts: captions, media links, timestamps, and like and comment counts.</li>
-<li>An access token that lets Pulse publish and read data for the account you connected. It is stored encrypted.</li>
-<li>Photos, videos and captions you upload to schedule posts.</li></ul>
-<h2>How we use it</h2>
-<p>Only to provide the service: publishing the posts you schedule, showing analytics, and keeping your connection active. We do not sell your data, share it with advertisers, or use it for profiling.</p>
-<h2>Who can see it</h2>
-<p>Only the people the operator has given access to Pulse. Data is stored with our hosting and database providers (Render and Supabase) and is shared with Meta only as needed to publish and read your Instagram data.</p>
-<h2>Retention and deletion</h2>
-<p>We keep your data while your account is connected. You can remove your account at any time, which deletes its stored token and its scheduled posts. See <a href="/data-deletion">how to delete your data</a>.</p>
-<h2>Contact</h2>${contact()}`)));
-
-app.get('/terms', (req, res) => res.type('html').send(legal('Terms of Service', `
-<p>By connecting an Instagram account to Pulse you agree to these terms.</p>
-<h2>The service</h2><p>Pulse lets you schedule and publish Instagram posts and view basic analytics for accounts you own or are authorised to manage.</p>
-<h2>Your responsibilities</h2><ul><li>Only connect accounts you own or have permission to manage.</li><li>Only publish content you have the right to post, and follow Instagram's terms and community guidelines.</li></ul>
-<h2>Availability</h2><p>The service is provided as is, without warranty. Scheduled posts depend on Instagram's systems and may fail or be delayed.</p>
-<h2>Ending use</h2><p>You can disconnect your account at any time. We may suspend access if the service is misused.</p>
-<h2>Contact</h2>${contact()}`)));
-
-app.get('/data-deletion', (req, res) => res.type('html').send(legal('Data Deletion', `
-<p>You can delete your data from Pulse at any time.</p>
-<h2>Option 1: remove the account</h2><p>In Pulse, open <b>Accounts</b> and choose <b>Remove</b> next to the account. This deletes its stored access token and all of its scheduled posts.</p>
-<h2>Option 2: revoke access on Instagram</h2><p>In Instagram, go to <b>Settings → Apps and websites</b> and remove Pulse. Pulse will no longer be able to access the account.</p>
-<h2>Option 3: ask us</h2><p>Contact us and we will delete everything we hold about your account, including uploaded media.</p>${contact()}`)));
 
 // Simple password gate (any username). Replace with real user accounts before opening to clients.
 app.use((req, res, next) => {
@@ -195,6 +158,40 @@ app.post('/api/posts', wrap(async (req, res) => {
   }
   setImmediate(tick);
   res.json({ created });
+}));
+
+app.post('/api/posts/bulk', wrap(async (req, res) => {
+  const items = (req.body || {}).items;
+  if (!Array.isArray(items) || !items.length) throw bad('Nothing to schedule');
+  if (items.length > 300) throw bad('Up to 300 posts at a time');
+  const ids = [...new Set(items.map(i => i && i.account_id))];
+  const { rows: accts } = await pool.query("select id from accounts where id = any($1::uuid[]) and status='active'", [ids]);
+  if (accts.length !== ids.length) throw bad('One of the selected accounts is disconnected. Reconnect it first.');
+  const now = new Date();
+  const rows = [];
+  for (const it of items) {
+    if (!/^https:\/\//.test(it.media_url || '')) throw bad('Media must be a public https URL');
+    if (!['IMAGE', 'REELS'].includes(it.media_type)) throw bad('Media type must be IMAGE or REELS');
+    const cap = String(it.caption || '');
+    if (cap.length > 2200) throw bad('Caption is over 2,200 characters');
+    let when = it.scheduled_at ? new Date(it.scheduled_at) : now;
+    if (isNaN(when)) throw bad('Invalid date');
+    if (when < now) when = now;
+    rows.push([it.account_id, cap, it.media_type, it.media_url, when]);
+  }
+  const client = await pool.connect();
+  try {
+    await client.query('begin');
+    const created = [];
+    for (const r of rows) {
+      const { rows: [p] } = await client.query(
+        'insert into posts (account_id, caption, media_type, media_url, scheduled_at) values ($1,$2,$3,$4,$5) returning id', r);
+      created.push(p.id);
+    }
+    await client.query('commit');
+    setImmediate(tick);
+    res.json({ created });
+  } catch (e) { await client.query('rollback'); throw e; } finally { client.release(); }
 }));
 
 app.delete('/api/posts/:id', wrap(async (req, res) => {
