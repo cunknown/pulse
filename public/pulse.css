@@ -175,3 +175,8 @@ main button:disabled{opacity:.45;cursor:wait}
 .bxt{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .bxt input{width:auto!important;flex:1}
 .bxr{align-self:flex-start;font-size:11px;color:var(--muted)}
+
+.bxh{display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.bxc{display:flex;flex-direction:column;gap:6px}
+.bxc label{display:flex;flex-direction:column;gap:2px;font-size:11px;color:var(--muted)}
+.bxc input{padding:7px 10px!important}

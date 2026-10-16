@@ -233,19 +233,22 @@ function bsum(){const p=bplan(),m=bids().length;$('#bpcount').textContent=m+' ac
  if(!p.length){$('#bsum').textContent='Pick a start time.';return}
  const last=p.reduce((a,b)=>b.when>a?b.when:a,p[0].when);
  $('#bsum').textContent=p.length+' post'+(p.length===1?'':'s')+' will be scheduled, finishing '+last.toLocaleString([], {weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'.'}
+function bsm(q){return (q.accts&&q.accts.length?q.accts.length+' account'+(q.accts.length===1?'':'s'):'auto')+' · '+(q.at?'custom time':'auto time')}
 function brows(){const L=$('#bq');L.innerHTML='';const ok=S.accts.filter(a=>a.status==='active');
- BQ.forEach((q,i)=>{const d=document.createElement('div');d.className='bqr';
-  const sum=(q.accts&&q.accts.length?q.accts.length+' account'+(q.accts.length===1?'':'s'):'auto')+' · '+(q.at?'custom time':'auto time');
-  d.innerHTML=`<span class="bn">${i+1}</span><div class="bm"><div class="bf">${esc(q.f.name)}</div><input placeholder="Caption (optional)" maxlength="2200" value="${esc(q.cap)}"><div class="bx" ${q.open?'':'hidden'}><div class="bxa">${ok.map(a=>`<label><input type="checkbox" value="${a.id}" ${q.accts&&q.accts.includes(a.id)?'checked':''}>@${esc(a.username)}</label>`).join('')}</div><label class="bxt">Post at<input type="datetime-local" value="${q.at||''}"></label><button type="button" class="link bxr">Back to auto</button></div></div><button type="button" class="link bset" aria-label="Choose accounts and time">${sum}</button><button type="button" class="link bdel" aria-label="Remove">✕</button>`;
-  d.querySelector('.bm>input').oninput=e=>{q.cap=e.target.value};
+ BQ.forEach((q,i)=>{q.caps=q.caps||{};const d=document.createElement('div');d.className='bqr';
+  const sel=ok.filter(a=>q.accts&&q.accts.includes(a.id));
+  d.innerHTML=`<span class="bn">${i+1}</span><div class="bm"><div class="bf">${esc(q.f.name)}</div><input class="bcap" placeholder="Caption (optional)" maxlength="2200" value="${esc(q.cap)}"><div class="bx" ${q.open?'':'hidden'}><div class="bxh"><span>Send this post to</span><button type="button" class="link bxall">${sel.length===ok.length?'None':'All accounts'}</button></div><div class="bxa">${ok.map(a=>`<label><input type="checkbox" value="${a.id}" ${q.accts&&q.accts.includes(a.id)?'checked':''}>@${esc(a.username)}</label>`).join('')}</div>${sel.length?`<div class="bxc">${sel.map(a=>`<label>Caption for @${esc(a.username)}<input data-acc="${a.id}" maxlength="2200" placeholder="${q.cap?'Same as the caption above':'Use the default caption'}" value="${esc(q.caps[a.id]||'')}"></label>`).join('')}</div>`:''}<label class="bxt">Post at<input type="datetime-local" value="${q.at||''}"></label><button type="button" class="link bxr">Back to auto</button></div></div><button type="button" class="link bset" aria-label="Choose accounts and time">${bsm(q)}</button><button type="button" class="link bdel" aria-label="Remove">✕</button>`;
+  d.querySelector('.bcap').oninput=e=>{q.cap=e.target.value};
   d.querySelector('.bset').onclick=()=>{q.open=!q.open;brows()};
-  d.querySelectorAll('.bxa input').forEach(c=>c.onchange=()=>{q.accts=[...d.querySelectorAll('.bxa input:checked')].map(x=>x.value);d.querySelector('.bset').textContent=(q.accts.length?q.accts.length+' account'+(q.accts.length===1?'':'s'):'auto')+' · '+(q.at?'custom time':'auto time');bsum()});
-  d.querySelector('.bxt input').onchange=e=>{q.at=e.target.value||null;d.querySelector('.bset').textContent=(q.accts&&q.accts.length?q.accts.length+' account'+(q.accts.length===1?'':'s'):'auto')+' · '+(q.at?'custom time':'auto time');bsum()};
-  d.querySelector('.bxr').onclick=()=>{q.accts=null;q.at=null;brows()};
+  d.querySelector('.bxall').onclick=()=>{q.accts=sel.length===ok.length?[]:ok.map(a=>a.id);brows()};
+  d.querySelectorAll('.bxa input').forEach(c=>c.onchange=()=>{q.accts=[...d.querySelectorAll('.bxa input:checked')].map(x=>x.value);brows()});
+  d.querySelectorAll('.bxc input').forEach(c=>c.oninput=()=>{q.caps[c.dataset.acc]=c.value});
+  d.querySelector('.bxt input').onchange=e=>{q.at=e.target.value||null;d.querySelector('.bset').textContent=bsm(q);bsum()};
+  d.querySelector('.bxr').onclick=()=>{q.accts=null;q.at=null;q.caps={};brows()};
   d.querySelector('.bdel').onclick=()=>{BQ.splice(i,1);brows()};L.append(d)});bsum()}
 async function bAdd(fs){fs=fs.filter(f=>/^(image\/jpeg|video\/mp4|video\/quicktime)$/.test(f.type)||/\.(jpe?g|mp4|mov)$/i.test(f.name));
  if(!fs.length){toast('Only JPEG photos and MP4/MOV videos');return}
- fs.forEach(f=>BQ.push({f,cap:'',url:null,type:null,accts:null,at:null,open:false}));if(BQ.length>300){BQ.length=300;toast('Limited to 300 at a time')}brows()}
+ fs.forEach(f=>BQ.push({f,cap:'',url:null,type:null,accts:null,at:null,open:false,caps:{}}));if(BQ.length>300){BQ.length=300;toast('Limited to 300 at a time')}brows()}
 async function bDropped(dt){const items=[...(dt.items||[])].map(i=>i.webkitGetAsEntry&&i.webkitGetAsEntry());if(!items.length||!items[0])return[...dt.files];
  const out=[];const walk=async en=>{if(!en)return;if(en.isFile){await new Promise(r=>en.file(f=>{out.push(f);r()},r))}else if(en.isDirectory){const rd=en.createReader();let b;do{b=await new Promise((r,j)=>rd.readEntries(r,j));for(const c of b)await walk(c)}while(b.length)}};
  for(const en of items)await walk(en);return out}
@@ -272,7 +275,7 @@ $('#bform').onsubmit=async e=>{e.preventDefault();const err=$('#berr'),btn=$('#b
    const fd=new FormData();fd.append('file',q.f);const r=await fetch('/api/upload',{method:'POST',body:fd});const j=await r.json().catch(()=>({}));
    if(!r.ok)throw new Error(`${q.f.name}: ${j.error||'upload failed'}`);q.url=j.url;q.type=j.media_type}
   btn.textContent='Scheduling…';const def=$('#bdef').value;
-  const items=plan.map(p=>({account_id:p.account_id,caption:p.q.cap||def,media_url:p.q.url,media_type:p.q.type,scheduled_at:p.when.toISOString()}));
+  const items=plan.map(p=>({account_id:p.account_id,caption:(p.q.caps&&p.q.caps[p.account_id])||p.q.cap||def,media_url:p.q.url,media_type:p.q.type,scheduled_at:p.when.toISOString()}));
   const res=await api('/api/posts/bulk',{method:'POST',body:JSON.stringify({items})});
   $('#bdlg').close();toast(res.created.length+' posts scheduled');S.filter='upcoming';document.querySelectorAll('#filter button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.f==='upcoming'));await load();
  }catch(x){err.textContent=x.message}finally{btn.disabled=false;btn.textContent=label}};
