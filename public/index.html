@@ -37,6 +37,7 @@
         <button aria-pressed="false" data-f="failed">Failed</button>
       </div>
       <button class="btn" id="new">New post</button>
+      <button class="btn ghost" id="bulk">Bulk schedule</button>
     </div>
     <div class="panel" id="plist"></div>
   </section>
@@ -62,6 +63,23 @@
     <label class="pickhead">Stagger across accounts<select id="stag"><option value="0">Same time</option><option value="5">5 min apart</option><option value="15">15 min apart</option><option value="30">30 min apart</option></select></label>
     <div class="err" id="err"></div>
     <div class="acts"><button type="button" class="btn ghost" id="cancel">Cancel</button><button class="btn" id="go">Schedule</button></div>
+  </form>
+</dialog>
+<dialog id="bdlg">
+  <form id="bform">
+    <h3>Bulk schedule</h3>
+    <label class="bdrop" id="bdrop"><input type="file" id="bfile" accept="image/jpeg,video/mp4,video/quicktime" multiple hidden>Drop photos / videos here, or click to choose<small>Several at once. A folder works too.</small></label>
+    <div class="bq" id="bq"></div>
+    <textarea id="bdef" rows="2" placeholder="Default caption (used for any post you leave blank)" maxlength="2200"></textarea>
+    <div class="pickhead"><span id="bpcount">0 accounts</span><button type="button" class="link" id="bpall">Select all</button></div>
+    <div class="picker" id="bpicker"></div>
+    <label class="pickhead">Spread<select id="bmode"><option value="rotate">Rotate: each post goes to one account in turn</option><option value="each">Every post goes to every selected account</option></select></label>
+    <div class="two"><label class="pickhead" style="display:block">Start<input type="datetime-local" id="bdt"></label><label class="pickhead" style="display:block">Gap between rounds<select id="bgap"><option value="30">30 min</option><option value="60" selected>1 hour</option><option value="120">2 hours</option><option value="240">4 hours</option><option value="720">12 hours</option><option value="1440">1 day</option></select></label></div>
+    <label class="pickhead">Gap between accounts<select id="bstag"><option value="5">5 min</option><option value="15" selected>15 min</option><option value="30">30 min</option><option value="60">1 hour</option></select></label>
+    <p class="hint" id="bsum">Add some media to begin.</p>
+    <p class="hint">Instagram allows about 100 API posts per account per 24 hours. Each account needs a connected, active login.</p>
+    <div class="err" id="berr"></div>
+    <div class="acts"><button type="button" class="btn ghost" id="bcancel">Cancel</button><button class="btn" id="bgo">Schedule all</button></div>
   </form>
 </dialog>
 <div class="toast" id="toast" role="status"></div>
@@ -197,6 +215,67 @@ $('#form').onsubmit=async e=>{
 document.addEventListener('pointerover',e=>{const t=e.target.closest&&e.target.closest('.post');if(!t)return;const r=t.getBoundingClientRect();t.classList.toggle('flipL',r.left<130);t.classList.toggle('flipR',r.right>innerWidth-130)});
 // ---- Theme (Vault of Glass / Crota's End) ----
 $('#themeBtn').onclick=()=>{const r=document.documentElement,c=r.getAttribute('data-theme')==='crota';if(c)r.removeAttribute('data-theme');else r.setAttribute('data-theme','crota');try{localStorage.setItem('pulse_theme',c?'vog':'crota')}catch(e){}};
+
+// ---- Bulk schedule ----
+let BQ=[];
+const bids=()=>[...document.querySelectorAll('#bpicker input:checked')].map(i=>i.value);
+function bacc(q,k){const ids=bids(),m=ids.length;if(q.accts&&q.accts.length)return q.accts;if(!m)return[];return $('#bmode').value==='each'?ids:[ids[k%m]]}
+function bplan(){const m=bids().length,n=BQ.length,gap=+$('#bgap').value,st=+$('#bstag').value,t0=new Date($('#bdt').value),out=[];
+ if(!n||isNaN(t0))return out;
+ const each=$('#bmode').value==='each';
+ for(let k=0;k<n;k++){const q=BQ[k],acc=bacc(q,k);
+  const base=q.at?new Date(q.at):new Date(t0.getTime()+(each||!m?k*gap:Math.floor(k/m)*gap+(k%m)*st)*6e4);
+  acc.forEach((id,j)=>out.push({q,account_id:id,when:new Date(base.getTime()+(each||(q.accts&&q.accts.length)?j*st:0)*6e4)}))}
+ return out}
+function bsum(){const p=bplan(),m=bids().length;$('#bpcount').textContent=m+' account'+(m===1?'':'s');
+ if(!BQ.length){$('#bsum').textContent='Add some media to begin.';return}
+ if(BQ.some((q,k)=>!bacc(q,k).length)){$('#bsum').textContent='Some posts have no account. Tick accounts above, or choose accounts on that post.';return}
+ if(!p.length){$('#bsum').textContent='Pick a start time.';return}
+ const last=p.reduce((a,b)=>b.when>a?b.when:a,p[0].when);
+ $('#bsum').textContent=p.length+' post'+(p.length===1?'':'s')+' will be scheduled, finishing '+last.toLocaleString([], {weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'.'}
+function brows(){const L=$('#bq');L.innerHTML='';const ok=S.accts.filter(a=>a.status==='active');
+ BQ.forEach((q,i)=>{const d=document.createElement('div');d.className='bqr';
+  const sum=(q.accts&&q.accts.length?q.accts.length+' account'+(q.accts.length===1?'':'s'):'auto')+' · '+(q.at?'custom time':'auto time');
+  d.innerHTML=`<span class="bn">${i+1}</span><div class="bm"><div class="bf">${esc(q.f.name)}</div><input placeholder="Caption (optional)" maxlength="2200" value="${esc(q.cap)}"><div class="bx" ${q.open?'':'hidden'}><div class="bxa">${ok.map(a=>`<label><input type="checkbox" value="${a.id}" ${q.accts&&q.accts.includes(a.id)?'checked':''}>@${esc(a.username)}</label>`).join('')}</div><label class="bxt">Post at<input type="datetime-local" value="${q.at||''}"></label><button type="button" class="link bxr">Back to auto</button></div></div><button type="button" class="link bset" aria-label="Choose accounts and time">${sum}</button><button type="button" class="link bdel" aria-label="Remove">✕</button>`;
+  d.querySelector('.bm>input').oninput=e=>{q.cap=e.target.value};
+  d.querySelector('.bset').onclick=()=>{q.open=!q.open;brows()};
+  d.querySelectorAll('.bxa input').forEach(c=>c.onchange=()=>{q.accts=[...d.querySelectorAll('.bxa input:checked')].map(x=>x.value);d.querySelector('.bset').textContent=(q.accts.length?q.accts.length+' account'+(q.accts.length===1?'':'s'):'auto')+' · '+(q.at?'custom time':'auto time');bsum()});
+  d.querySelector('.bxt input').onchange=e=>{q.at=e.target.value||null;d.querySelector('.bset').textContent=(q.accts&&q.accts.length?q.accts.length+' account'+(q.accts.length===1?'':'s'):'auto')+' · '+(q.at?'custom time':'auto time');bsum()};
+  d.querySelector('.bxr').onclick=()=>{q.accts=null;q.at=null;brows()};
+  d.querySelector('.bdel').onclick=()=>{BQ.splice(i,1);brows()};L.append(d)});bsum()}
+async function bAdd(fs){fs=fs.filter(f=>/^(image\/jpeg|video\/mp4|video\/quicktime)$/.test(f.type)||/\.(jpe?g|mp4|mov)$/i.test(f.name));
+ if(!fs.length){toast('Only JPEG photos and MP4/MOV videos');return}
+ fs.forEach(f=>BQ.push({f,cap:'',url:null,type:null,accts:null,at:null,open:false}));if(BQ.length>300){BQ.length=300;toast('Limited to 300 at a time')}brows()}
+async function bDropped(dt){const items=[...(dt.items||[])].map(i=>i.webkitGetAsEntry&&i.webkitGetAsEntry());if(!items.length||!items[0])return[...dt.files];
+ const out=[];const walk=async en=>{if(!en)return;if(en.isFile){await new Promise(r=>en.file(f=>{out.push(f);r()},r))}else if(en.isDirectory){const rd=en.createReader();let b;do{b=await new Promise((r,j)=>rd.readEntries(r,j));for(const c of b)await walk(c)}while(b.length)}};
+ for(const en of items)await walk(en);return out}
+$('#bulk').onclick=()=>{const ok=S.accts.filter(a=>a.status==='active');
+ if(!ok.length){toast('Connect an account first');show('accounts');return}
+ BQ=[];$('#bform').reset();$('#berr').textContent='';
+ $('#bpicker').innerHTML=ok.map(a=>`<label><input type="checkbox" value="${a.id}">@${esc(a.username)}</label>`).join('');
+ if(ok.length===1)$('#bpicker input').checked=true;
+ const d=new Date(Date.now()+36e5);d.setMinutes(0,0,0);$('#bdt').value=new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,16);
+ $('#bpall').textContent='Select all';brows();$('#bdlg').showModal()};
+$('#bdrop').onclick=e=>{if(e.target.id!=='bfile')$('#bfile').click()};
+$('#bfile').onchange=()=>{bAdd([...$('#bfile').files]);$('#bfile').value=''};
+$('#bdrop').ondragover=e=>{e.preventDefault();$('#bdrop').classList.add('on')};
+$('#bdrop').ondragleave=()=>$('#bdrop').classList.remove('on');
+$('#bdrop').ondrop=async e=>{e.preventDefault();$('#bdrop').classList.remove('on');bAdd(await bDropped(e.dataTransfer))};
+$('#bpicker').onchange=bsum;['#bmode','#bgap','#bstag','#bdt'].forEach(s=>{$(s).onchange=bsum;$(s).oninput=bsum});
+$('#bpall').onclick=()=>{const all=$('#bpall').textContent==='Select all';document.querySelectorAll('#bpicker input').forEach(c=>c.checked=all);$('#bpall').textContent=all?'Clear':'Select all';bsum()};
+$('#bcancel').onclick=()=>$('#bdlg').close();
+$('#bform').onsubmit=async e=>{e.preventDefault();const err=$('#berr'),btn=$('#bgo'),label=btn.textContent;err.textContent='';
+ const plan=bplan();if(!BQ.length){err.textContent='Add some media first';return}if(BQ.some((q,k)=>!bacc(q,k).length)){err.textContent='Some posts have no account. Tick accounts above, or choose accounts on that post.';return}if(!plan.length){err.textContent='Pick a start time';return}
+ btn.disabled=true;
+ try{
+  for(let i=0;i<BQ.length;i++){const q=BQ[i];if(q.url)continue;btn.textContent=`Uploading ${i+1}/${BQ.length}…`;
+   const fd=new FormData();fd.append('file',q.f);const r=await fetch('/api/upload',{method:'POST',body:fd});const j=await r.json().catch(()=>({}));
+   if(!r.ok)throw new Error(`${q.f.name}: ${j.error||'upload failed'}`);q.url=j.url;q.type=j.media_type}
+  btn.textContent='Scheduling…';const def=$('#bdef').value;
+  const items=plan.map(p=>({account_id:p.account_id,caption:p.q.cap||def,media_url:p.q.url,media_type:p.q.type,scheduled_at:p.when.toISOString()}));
+  const res=await api('/api/posts/bulk',{method:'POST',body:JSON.stringify({items})});
+  $('#bdlg').close();toast(res.created.length+' posts scheduled');S.filter='upcoming';document.querySelectorAll('#filter button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.f==='upcoming'));await load();
+ }catch(x){err.textContent=x.message}finally{btn.disabled=false;btn.textContent=label}};
 
 // ---- Boot ----
 const q=new URLSearchParams(location.search);
